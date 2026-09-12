@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BKKIFF 2026 Planner</title>
+<meta name="description" content="Browse every BKKIFF 2026 screening by cinema and date, pick your films and export your plan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..900;1,62..125,400..700&family=Anuphan:wght@300..700&display=swap">
+<style>
+:root{
+  --ground:#F2F0F5; --surface:#FBFAFC; --raise:#FFFFFF; --ink:#17151C; --muted:#5F5A69; --faint:#8C8697;
+  --line:#DDD9E3; --qa:#C8102E; --warn:#A8520A; --focus:#0B8BA3; --onfill:#17151C;
+  --v-ICON:#D9C27A; --v-SAM:#F6B596; --v-PAR:#F4A6BD; --v-SF:#62DDF0; --v-C11:#AEB0EA;
+  --cyan:#62DDF0; --cyan-pale:#E6FAFD;
+  --shadow:0 10px 30px -12px rgba(30,20,50,.28);
+  --display:"Archivo","Anuphan",system-ui,sans-serif;
+  --body:"Anuphan","Archivo",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#111016; --surface:#18161E; --raise:#201D27; --ink:#EEEAF4; --muted:#ABA5B6; --faint:#7C7688;
+    --line:#2E2A37; --qa:#FF5C70; --warn:#F2A54E; --focus:#62DDF0;
+    --cyan-pale:#123840; --shadow:0 14px 34px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#111016; --surface:#18161E; --raise:#201D27; --ink:#EEEAF4; --muted:#ABA5B6; --faint:#7C7688;
+  --line:#2E2A37; --qa:#FF5C70; --warn:#F2A54E; --focus:#62DDF0;
+  --cyan-pale:#123840; --shadow:0 14px 34px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0;padding-inline:clamp(16px,3vw,40px);padding-block:0 64px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1320px;margin-inline:auto}
+.eyebrow{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- masthead ---------- */
+.mast{position:relative;overflow:hidden;margin-inline:calc(-1 * clamp(16px,3vw,40px));padding:28px clamp(16px,3vw,40px) 24px;isolation:isolate;border-bottom:1px solid var(--line)}
+.mast::before{content:"";position:absolute;inset:-60px;z-index:-2;
+  background:repeating-conic-gradient(#62DDF0 0 25%, #E6FAFD 0 50%) 0 0/150px 96px;
+  filter:blur(26px) saturate(1.1);transform:scale(1.15)}
+.mast::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(255,255,255,.35),rgba(255,255,255,.04) 60%)}
+.mast .wrap{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+.mast h1{margin:0;font-family:var(--display);font-weight:400;font-stretch:100%;font-size:clamp(28px,4.6vw,56px);line-height:.98;letter-spacing:-.02em;text-transform:uppercase;text-wrap:balance;color:#0E0D12}
+.mast h1 b{display:block;font-weight:800;font-stretch:118%;letter-spacing:-.03em}
+.mast .dates{font-family:var(--display);text-align:right;color:#0E0D12}
+.mast .dates .big{font-size:clamp(34px,6vw,76px);font-weight:800;font-stretch:70%;line-height:.9;letter-spacing:-.02em}
+.mast .dates .sub{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-top:6px}
+.mast .lede{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13.5px;color:#1d1b24;max-width:1000px}
+.mast .lede span b{font-family:var(--display);font-weight:700}
+.countdown{display:inline-block;background:#0E0D12;color:#F2F0F5;border-radius:999px;padding:3px 11px;font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- about ---------- */
+.about{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px 32px;padding-block:22px 6px}
+.about p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:62ch}
+.about h3{margin:0;font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:-.01em}
+
+/* ---------- toolbar ---------- */
+.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);margin-inline:calc(-1 * clamp(16px,3vw,40px));padding:10px clamp(16px,3vw,40px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;flex-direction:column;gap:10px}
+.row1{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tabs{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.tabs button{border:0;background:none;padding:6px 14px;border-radius:999px;font-family:var(--display);font-weight:600;font-size:13px;color:var(--muted)}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.search{flex:1 1 180px;min-width:0;position:relative}
+.search input{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px 7px 34px;font-size:14px}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--faint);fill:none;stroke-width:2}
+.planbtn{border:0;background:var(--ink);color:var(--ground);border-radius:999px;padding:7px 16px;font-family:var(--display);font-weight:700;font-size:13px;display:inline-flex;gap:8px;align-items:center;white-space:nowrap}
+.planbtn .n{background:var(--cyan);color:#0E0D12;border-radius:999px;min-width:22px;padding:0 6px;text-align:center}
+.planbtn .w{color:#FF8A98;font-weight:700}
+.days{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}
+.day{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:5px 10px 4px;text-align:left;font-family:var(--display);line-height:1.05;min-width:58px}
+.day .dow{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.day .num{font-size:20px;font-weight:800;font-stretch:75%}
+.day .cnt{font-size:10px;color:var(--faint)}
+.day .dots{display:flex;gap:2px;height:4px;margin-top:3px}
+.day .dots i{width:4px;height:4px;border-radius:50%;background:var(--ink)}
+.day[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.day[aria-pressed="true"] .dow,.day[aria-pressed="true"] .cnt{color:color-mix(in srgb,var(--ground) 75%,transparent)}
+.day[aria-pressed="true"] .dots i{background:var(--cyan)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px 4px 8px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.chip .sw{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.chip[aria-pressed="false"]{opacity:.5}
+.chip[aria-pressed="false"] .sw{background:transparent;box-shadow:inset 0 0 0 1.5px var(--c)}
+
+/* ---------- day view ---------- */
+.dayhead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding-block:22px 12px}
+.dayhead h2{margin:0;font-family:var(--display);font-size:clamp(24px,3vw,34px);font-weight:800;font-stretch:80%;text-transform:uppercase;letter-spacing:-.01em}
+.dayhead .meta{color:var(--muted);font-size:14px}
+.venues{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+.venue{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:14px;isolation:isolate;padding-bottom:58px}
+.venue .vh{background:var(--c);color:var(--onfill);padding:10px 14px 9px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.venue .vh b{font-family:var(--display);font-weight:800;font-stretch:88%;text-transform:uppercase;font-size:15px;letter-spacing:.01em}
+.venue .vh span{font-size:12px;opacity:.8}
+.venue .ghost{position:absolute;left:10px;bottom:-16px;z-index:-1;font-family:var(--display);font-weight:800;font-stretch:70%;font-size:84px;line-height:1;color:color-mix(in srgb,var(--c) 26%,transparent);pointer-events:none;letter-spacing:-.04em;white-space:nowrap}
+.slot{display:grid;grid-template-columns:52px 40px 1fr auto;gap:10px;align-items:start;padding:11px 12px 11px 14px;border-top:1px solid var(--line)}
+.venue .slot:first-of-type{border-top:0}
+.venue .slot:last-of-type{border-bottom:1px solid var(--line)}
+.slot.on{background:color-mix(in srgb,var(--c) 22%,var(--surface))}
+.slot .time{font-family:var(--display);font-variant-numeric:tabular-nums;line-height:1.1}
+.slot .time b{display:block;font-size:17px;font-weight:700}
+.slot .time small{font-size:11px;color:var(--muted)}
+.slot .ttl{border:0;background:none;padding:0;text-align:left;font-family:var(--display);font-weight:700;font-stretch:86%;font-size:15px;line-height:1.15;text-transform:uppercase;letter-spacing:.005em;text-wrap:balance}
+.slot .ttl:hover{text-decoration:underline;text-underline-offset:3px}
+.slot .en{font-size:12px;color:var(--muted);margin-top:1px}
+.slot .meta{font-size:12px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.tag{display:inline-block;font-family:var(--display);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;padding:1px 5px}
+.tag.qa{background:var(--qa);color:#fff}
+.tag.sp{background:var(--ink);color:var(--ground)}
+.tag.col{border:1px solid var(--line);color:var(--muted);font-weight:700}
+.warnline{font-size:12px;color:var(--warn);margin-top:4px;font-weight:500}
+.warnline.bad{color:var(--qa)}
+.add{border:1.5px solid var(--ink);background:transparent;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto}
+.add svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none}
+.add[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.empty{padding:40px 0;color:var(--muted)}
+
+/* ---------- posters (designed title cards) ---------- */
+.poster{position:relative;aspect-ratio:2/3;max-width:100%;border-radius:6px;overflow:hidden;isolation:isolate;color:#0E0D12;
+  background:radial-gradient(120% 70% at 20% 15%,var(--p1),transparent 60%),radial-gradient(100% 80% at 90% 90%,var(--p2),transparent 65%),var(--p3)}
+.poster::before{content:"";position:absolute;inset:0;z-index:-1;background:repeating-linear-gradient(0deg,rgba(255,255,255,.22) 0 14%,transparent 14% 28%);filter:blur(6px);mix-blend-mode:soft-light}
+.poster.mini{width:40px;border-radius:4px}
+.poster.mini .pt,.poster.mini .pk,.poster.mini .pb{display:none}
+.poster.mini .pi{position:absolute;inset:auto 0 3px 0;text-align:center;font-family:var(--display);font-weight:800;font-stretch:70%;font-size:15px}
+.poster .pi{display:none}
+.poster img.real{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;background:var(--p3)}
+.poster .pk{position:absolute;top:9px;left:10px;right:10px;display:flex;justify-content:space-between;font-family:var(--display);font-size:9px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;opacity:.85}
+.poster .pt{position:absolute;left:10px;right:10px;bottom:30px;font-family:var(--display);font-weight:800;font-stretch:66%;text-transform:uppercase;line-height:.9;letter-spacing:-.01em;font-size:var(--fs,30px);overflow-wrap:anywhere;text-wrap:balance}
+.poster .pb{position:absolute;left:10px;right:10px;bottom:10px;font-size:10px;font-weight:600;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poster.dark{color:#F3EEE6}
+
+/* ---------- film view ---------- */
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding-block:22px 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:22px 16px}
+.card{display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .pbtn{border:0;padding:0;background:none;display:block;border-radius:6px;box-shadow:var(--shadow);transition:transform .18s ease}
+.card .pbtn:hover{transform:translateY(-3px)}
+.card h3{margin:0;font-family:var(--display);font-size:14px;font-weight:700;font-stretch:88%;text-transform:uppercase;line-height:1.15;text-wrap:balance}
+.card .by{font-size:12px;color:var(--muted)}
+.card p{margin:0;font-size:12.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.times{display:flex;flex-wrap:wrap;gap:5px}
+.st{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:3px 7px;font-size:11.5px;display:inline-flex;gap:5px;align-items:center;font-variant-numeric:tabular-nums}
+.st .sw{width:8px;height:8px;border-radius:2px;background:var(--c)}
+.st[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.st .q{color:var(--qa);font-weight:800;font-family:var(--display);font-size:10px}
+.st[aria-pressed="true"] .q{color:#FF8A98}
+
+/* ---------- dialog ---------- */
+dialog{border:0;padding:0;border-radius:16px;background:var(--raise);color:var(--ink);width:min(860px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-shadow:0 30px 80px -20px rgba(0,0,0,.5)}
+dialog::backdrop{background:rgba(12,10,18,.55);backdrop-filter:blur(3px)}
+.dlg{display:grid;grid-template-columns:230px 1fr;gap:26px;padding:24px;position:relative}
+.dlg .x{position:absolute;top:12px;right:12px;border:0;background:var(--surface);width:34px;height:34px;border-radius:50%;font-size:18px;line-height:1}
+.dlg h2{margin:0;font-family:var(--display);font-weight:800;font-stretch:78%;font-size:clamp(24px,3.4vw,34px);line-height:1;text-transform:uppercase;text-wrap:balance;padding-right:36px}
+.dlg .alt{color:var(--muted);margin-top:4px}
+.facts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:13px}
+.facts span{color:var(--muted)} .facts b{font-weight:600;color:var(--ink)}
+.dlg .desc{font-size:15.5px;line-height:1.55;margin:14px 0 0;max-width:62ch}
+.note{margin-top:12px;font-size:13px;background:color-mix(in srgb,var(--warn) 12%,var(--raise));border-left:3px solid var(--warn);padding:8px 10px;border-radius:0 6px 6px 0}
+.links{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.links a{font-family:var(--display);font-weight:700;font-size:13px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+.links a:hover{background:var(--surface)}
+.shows{margin-top:18px;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.show{display:grid;grid-template-columns:10px 1fr auto;gap:12px;align-items:center;padding:9px 12px;border-top:1px solid var(--line)}
+.show:first-child{border-top:0}
+.show .sw{width:10px;align-self:stretch;border-radius:3px;background:var(--c)}
+.show b{font-family:var(--display);font-variant-numeric:tabular-nums}
+.show small{display:block;color:var(--muted);font-size:12px}
+.show.on{background:color-mix(in srgb,var(--c) 20%,var(--raise))}
+
+/* ---------- plan sheet ---------- */
+.sheet{position:fixed;inset:0 0 0 auto;width:min(430px,100vw);background:var(--raise);z-index:40;box-shadow:-20px 0 60px -20px rgba(0,0,0,.4);transform:translateX(105%);transition:transform .25s ease;display:flex;flex-direction:column}
+.sheet.open{transform:none}
+.scrim{position:fixed;inset:0;background:rgba(12,10,18,.4);z-index:39}
+.sheet header{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:start}
+.sheet h2{margin:0;font-family:var(--display);font-size:24px;font-weight:800;font-stretch:80%;text-transform:uppercase}
+.sheet .sum{font-size:13px;color:var(--muted)}
+.sheet .body{overflow:auto;padding:12px 20px 20px;flex:1}
+.sheet footer{border-top:1px solid var(--line);padding:12px 20px 16px;display:flex;flex-direction:column;gap:8px}
+.pday{margin-top:14px}
+.pday h4{margin:0 0 6px;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pitem{display:grid;grid-template-columns:6px 1fr auto;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.pitem .sw{border-radius:3px;background:var(--c)}
+.pitem .tt{font-family:var(--display);font-weight:700;font-stretch:88%;text-transform:uppercase;font-size:13.5px;line-height:1.15;border:0;background:none;padding:0;text-align:left}
+.pitem small{display:block;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.pitem .rm{border:0;background:none;color:var(--faint);font-size:18px;line-height:1;padding:2px 4px}
+.clash{grid-column:2/-1;font-size:12px;font-weight:600;color:var(--qa)}
+.clash.tight{color:var(--warn)}
+.settings{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.settings label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.settings input{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 8px;width:100%}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 12px;font-family:var(--display);font-weight:700;font-size:13px;text-align:center}
+.btn.primary{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seednote{font-size:12.5px;background:var(--cyan-pale);border-radius:8px;padding:8px 10px;margin-top:6px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:9px 16px;border-radius:999px;font-size:13px;z-index:60;box-shadow:var(--shadow)}
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.foot p{margin:0;max-width:80ch}
+.foot a{color:inherit}
+
+@media (max-width:760px){
+  /* day view: cinemas stack, one full-width column after another */
+  .venues{grid-template-columns:1fr;gap:14px}
+  .venue{padding-bottom:52px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:18px 12px}
+  /* cinema + collection chips: one sideways-scrolling row, edge to edge */
+  .chips,.filters,.days{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    margin-inline:calc(-1 * clamp(16px,3vw,40px));padding-inline:clamp(16px,3vw,40px)}
+  .chips::-webkit-scrollbar,.filters::-webkit-scrollbar,.days::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;white-space:nowrap}
+  .filters{padding-block:18px 12px}
+}
+@media (max-width:640px){
+  .mast .wrap{grid-template-columns:1fr}
+  .mast .dates{text-align:left}
+  .dlg{grid-template-columns:1fr;padding:18px}
+  .dlg .pwrap{max-width:170px}
+  .slot{grid-template-columns:48px 34px 1fr auto;gap:8px}
+  .poster.mini{width:34px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.bar,.sheet,.scrim{display:none}}
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <h1>Bangkok International Film Festival <b>Screening Program</b></h1>
+    <div class="dates"><div class="big">13–27 SEP</div><div class="sub">BKKIFF 2026 · <span id="countdown" class="countdown">—</span></div></div>
+    <div class="lede">
+      <span><b>115</b> titles</span><span><b>167</b> screenings</span><span><b>5</b> cinemas</span>
+      <span>Opening: <b>9 Temples to Heaven</b> · ICONSIAM</span><span>Closing: <b>The House on the Moon</b> · IMAX</span>
+    </div>
+  </div>
+</header>
+
+<section class="wrap about" aria-label="About the festival">
+  <div><h3>The festival</h3><p>BKKIFF returns 13–27 September 2026 with 150+ films, a film market, workshops and talks. Actors Ananda Everingham and Aim Bhumibhat Thavornsiri are this year's ambassadors.</p></div>
+  <div><h3>Two retrospectives</h3><p>Seven films by Palme d'Or winner Shōhei Imamura at Paragon, and Thai classics at Doc Club & Friends and House Samyan – part of a tribute to producer Visute Poolvoralaks.</p></div>
+  <div><h3>How to use this</h3><p>Pick a day, tap <b>+</b> on any screening, or browse <b>All films</b>. Your plan flags overlaps and tight transfers between cinemas, and exports as a spreadsheet or printable page.</p></div>
+</section>
+
+<nav class="bar" aria-label="Browse">
+  <div class="wrap">
+    <div class="row1">
+      <div class="tabs" role="group" aria-label="View">
+        <button id="tab-day" aria-pressed="true">By day</button>
+        <button id="tab-films" aria-pressed="false">All films</button>
+      </div>
+      <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search title, director, country…" aria-label="Search films"></label>
+      <button class="planbtn" id="openPlan"><span>My plan</span><span class="n" id="planCount">0</span><span class="w" id="planWarn"></span></button>
+    </div>
+    <div class="days" id="days" role="group" aria-label="Festival days"></div>
+    <div class="chips" id="venueChips" role="group" aria-label="Cinemas"></div>
+  </div>
+</nav>
+
+<main class="wrap" id="main"></main>
+
+<footer class="wrap foot"><p>
+  Schedule from the official BKKIFF 2026 screening program posters. Times can change – check the festival's channels before you go.
+  Film info and runtimes cross-checked with Letterboxd and IMDb; descriptions are our own summaries. <span id="posterNote">Posters load from IMDb when you open the downloaded version of this planner in your browser; here each film shows a designed title card instead.</span></p>
+</footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="plan" aria-label="My plan" aria-hidden="true">
+  <header>
+    <div><h2>My plan</h2><div class="sum" id="planSum"></div></div>
+    <button class="btn" id="closePlan" aria-label="Close plan">Close</button>
+  </header>
+  <div class="body" id="planBody"></div>
+  <footer>
+    <div>
+      <div class="eyebrow">Time needed between films</div>
+      <div class="settings">
+        <label for="setQa">Q&amp;A extra (min)<input id="setQa" type="number" min="0" max="120" step="5"></label>
+        <label for="setSame">Same cinema<input id="setSame" type="number" min="0" max="120" step="5"></label>
+        <label for="setDiff">Other cinema<input id="setDiff" type="number" min="0" max="180" step="5"></label>
+      </div>
+    </div>
+    <div class="btnrow" id="saveRow" hidden>
+      <button class="btn primary" id="saveCsv">Save as spreadsheet (.csv)</button>
+      <button class="btn primary" id="saveHtml">Save printable plan (.html)</button>
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="copyTxt">Copy plan as text</button>
+      <button class="btn" id="clearPlan">Clear plan</button>
+    </div>
+  </footer>
+</aside>
+
+<dialog id="film" aria-label="Film details"><div id="filmBody"></div></dialog>
+
+<script>
+const DATA = {"films":{"9 TEMPLES TO HEAVEN":{"t":"9 TEMPLES TO HEAVEN","en":"","rt":140,"d":"A family sets out on a pilgrimage to nine temples, hoping to extend their elderly mother's life before her birthday.","c":"Thailand, France, Singapore +","g":"Drama, Road movie","by":"Sompot Chidgasornpongse, 2026","imdb":"https://www.imdb.com/title/tt37740247/","lb":"https://letterboxd.com/film/9-temples-to-heaven/","kind":"new","po":"MV5BYmUzN2UwMzEtNjFhYS00MDJjLTkzM2MtNmIzM2ViNjhlYmI0XkEyXkFqcGc@"},"UNTIL SHE REMEMBERS":{"t":"UNTIL SHE REMEMBERS","en":"","rt":107,"d":"A high-school girl helps her grandmother uncover a romance hidden since her youth.","c":"Philippines, Thailand","g":"Drama","by":"Brillante Ma Mendoza, 2026","imdb":"https://www.imdb.com/title/tt39310310/","lb":"https://letterboxd.com/film/until-she-remembers/","kind":"new","po":"MV5BMzIyNzVkOTQtNzQ1MS00YjhlLWI5NWItYThmY2JlOGJkNWI4XkEyXkFqcGc@"},"THE MAGE":{"t":"THE MAGE","en":"","rt":97,"d":"A garbage collector with the power to guide accident victims toward reincarnation gets pulled into a string of mysterious murders.","c":"Hong Kong","g":"Fantasy thriller","by":"Danny & Oxide Pang, 2026","imdb":"https://www.imdb.com/title/tt32432312/","lb":"https://letterboxd.com/film/the-mage/","kind":"new","po":"MV5BMmE5NDhlN2YtZDZlNS00ZDNkLWJkMGMtMDRlNTYwZmE3ZjM3XkEyXkFqcGc@"},"ANIMATION SHORT FILM PROGRAM":{"t":"ANIMATION SHORT FILM PROGRAM","en":"","rt":90,"d":"A programme of animated short films.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Animation%20Short%20Film%20Program/"},"นางนาก":{"t":"นางนาก","en":"Nang Nak","rt":100,"d":"A soldier comes home from war to a wife and child who seem strangely devoted – Thailand's most famous ghost legend.","c":"Thailand","g":"Horror, Drama","by":"Nonzee Nimibutr, 1999","imdb":"https://www.imdb.com/title/tt0217680/","lb":"https://letterboxd.com/film/nang-nak/","kind":"classic","po":"MV5BNmU1ZTE4YmUtNTI2YS00OGY0LWJiNzUtYjk1YmM2ZjE5N2QxXkEyXkFqcGc@"},"ASIAN SHORT FILM SHOWCASE 1":{"t":"ASIAN SHORT FILM SHOWCASE 1","en":"","rt":90,"d":"A showcase of short films from across Asia.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Asian%20Short%20Film%20Showcase%201/"},"ฉลุย":{"t":"ฉลุย","en":"Chalui","rt":103,"d":"Two young musicians from rural Thailand chase stardom against the odds.","c":"Thailand","g":"Music drama","by":"Adirek Watleela, 1988","imdb":"https://www.imdb.com/title/tt24084332/","lb":"https://letterboxd.com/film/chalui/","kind":"classic"},"ฉลุยโครงการ 2":{"t":"ฉลุยโครงการ 2","en":"Chalui Project 2","rt":100,"d":"Friends reunite a burned-out man with their old shared house to bring his lost memory back.","c":"Thailand","g":"Comedy","by":"Adirek Watleela, 1990","imdb":"https://www.imdb.com/title/tt15092532/","lb":"https://letterboxd.com/film/chalui-project-2/","kind":"classic","po":"MV5BYmQ0MTYyMmYtYTlkMS00ODAzLWE5ZjAtZDhlOWU1NDEyYTY5XkEyXkFqcGc@"},"WE'RE NOTHING AT ALL":{"t":"WE'RE NOTHING AT ALL","en":"","rt":128,"d":"A retired forensic expert investigates a bus bombing carried out by a marginalised gay couple.","c":"Hong Kong","g":"Crime drama","by":"Herman Yau, 2026","imdb":"https://www.imdb.com/title/tt37535198/","lb":"https://letterboxd.com/film/were-nothing-at-all/","kind":"new","po":"MV5BNDlkODJkNTEtM2Y2MS00NGY1LWJiZGMtMTBhOWVhYzI2N2IxXkEyXkFqcGc@"},"THE HOUSE ON THE MOON":{"t":"THE HOUSE ON THE MOON","en":"","rt":99,"d":"A fairy searches the dark side of the moon for her vanished archer lover, in a myth-inspired journey.","c":"Taiwan, Singapore, Germany, Indonesia","g":"Fantasy, Sci-fi","by":"Nelson Yeo, 2026","imdb":"https://www.imdb.com/title/tt39334277/","lb":"https://letterboxd.com/film/the-house-on-the-moon-2026/","kind":"new","po":"MV5BNjQ1Nzk4ZjktYTk0ZS00MzBlLWEzZWEtMDk2ZTUzYTUxMTU2XkEyXkFqcGc@"},"รักแรกอุ้ม":{"t":"รักแรกอุ้ม","en":"Rak Raek Um","rt":102,"d":"An early-'90s Thai teen romance starring Khajornsak Rattananissai and Chanjira Joojaeng.","c":"Thailand","g":"Romance","by":"c. 1993","kind":"classic","lbs":"https://letterboxd.com/search/films/Rak%20Raek%20Um/"},"บุญตั้งไข่":{"t":"บุญตั้งไข่","en":"Bun Tang Khai","rt":107,"d":"Thai comedy starring Santisuk Promsiri and Chanjira Joojaeng.","c":"Thailand","g":"Comedy","by":"1992","kind":"classic","lbs":"https://letterboxd.com/search/films/Bun%20Tang%20Khai/"},"สยึมกึ๋ย":{"t":"สยึมกึ๋ย","en":"Magic Moon (Sayumkui)","rt":95,"d":"Three bumbling helpers follow their boss to Chiang Mai, where mischievous ghosts wreck their plans.","c":"Thailand","g":"Horror comedy","by":"Tanit Jitnukul, 1991","imdb":"https://www.imdb.com/title/tt15085510/","lb":"https://letterboxd.com/film/magic-moon/","kind":"classic","po":"MV5BNzUyMWFmOWQtNDU0Ni00YzI0LTgzMGUtOTNmMTMzMjdkMTQyXkEyXkFqcGc@"},"ปีหนึ่งเพื่อนกัน และวันอัศจรรย์ของผม":{"t":"ปีหนึ่งเพื่อนกัน และวันอัศจรรย์ของผม","en":"Pee Neung Peun Gun","rt":105,"d":"A 1996 Thai story of first-year university friendships and coming of age.","c":"Thailand","g":"Romance, Drama","by":"1996","imdb":"https://www.imdb.com/title/tt31829607/","kind":"classic","note":"IMDb lists this as a 1996 TV series.","lbs":"https://letterboxd.com/search/films/Pee%20Neung%20Peun%20Gun/","po":"MV5BOTkxMTk2MTEtNWRhYy00MGU4LWI0NmUtOTk3ODY0NDhlNTkzXkEyXkFqcGc@"},"รักแท้บทที่ 1":{"t":"รักแท้บทที่ 1","en":"The First Lesson of True Love","rt":100,"d":"A young man who has learned about love from books and friends reconnects with his first love.","c":"Thailand","g":"Romance","by":"Sutape Tunnirut, 1995","imdb":"https://www.imdb.com/title/tt2630946/","lb":"https://letterboxd.com/film/the-first-lesson-of-true-love/","kind":"classic","po":"MV5BN2EzMjc5NDItMTIyMS00YzFlLWI2NDYtNTJkN2M4MGE4NDZmXkEyXkFqcGc@"},"303 กลัว กล้า อาฆาต":{"t":"303 กลัว กล้า อาฆาต","en":"303 Fear Faith Revenge","rt":91,"d":"Boys at a Catholic boarding school dig into the mysterious death of a top student.","c":"Thailand","g":"Horror, Thriller","by":"Somching Srisupap, 1998","imdb":"https://www.imdb.com/title/tt0219682/","lb":"https://letterboxd.com/film/303-fear-faith-revenge/","kind":"classic","po":"MV5BMmYwZjAzNDItZTBmZi00MGI1LWIxM2ItODJmMmYzZTY3OTMyXkEyXkFqcGc@"},"สตรีเหล็ก":{"t":"สตรีเหล็ก","en":"The Iron Ladies","rt":104,"d":"A volleyball team of gay and trans athletes beats prejudice – and their rivals – on the way to the national title.","c":"Thailand","g":"Sports comedy","by":"Yongyoot Thongkongtoon, 2000","imdb":"https://www.imdb.com/title/tt0263957/","lb":"https://letterboxd.com/film/the-iron-ladies/","kind":"classic","po":"MV5BMTM5NTA1Mjg0N15BMl5BanBnXkFtZTcwNTE0MzMzMQ@@"},"สตรีเหล็ก 2":{"t":"สตรีเหล็ก 2","en":"The Iron Ladies 2","rt":115,"d":"The famous volleyball team of gay and trans players deals with fame, fallouts and a comeback.","c":"Thailand","g":"Sports comedy","by":"Yongyoot Thongkongtoon, 2003","imdb":"https://www.imdb.com/title/tt0355977/","lb":"https://letterboxd.com/film/the-iron-ladies-2/","kind":"classic","po":"MV5BMTkwMjI3MjUwNF5BMl5BanBnXkFtZTcwMDgyNTY1Mw@@"},"แม่เบี้ย":{"t":"แม่เบี้ย","en":"Mae Bia (Snake Lady)","rt":100,"d":"A man back in Thailand becomes entangled with a mysterious woman whose family is bound to a sacred cobra.","c":"Thailand","g":"Romance, Fantasy","by":"2001 version","imdb":"https://www.imdb.com/title/tt0279937/","lb":"https://letterboxd.com/imdb/tt0279937/","kind":"classic","note":"Linked to the 2001 version; there is also a 1990 film of the same story.","po":"MV5BOTAzNmIzMGItZmFjMy00YmY3LWFjNjItZTFjNjZiMzkwZmY5XkEyXkFqcGc@"},"กึ๋ยทู":{"t":"กึ๋ยทู","en":"Magic Moon 2 (Sayumkui 2)","rt":98,"d":"The sequel: the gang travels through time to fight supernatural evil.","c":"Thailand","g":"Fantasy comedy","by":"Tanit Jitnukul, 1995","imdb":"https://www.imdb.com/title/tt15101878/","lb":"https://letterboxd.com/film/magic-moon-2/","kind":"classic","po":"MV5BN2M2OWM2ZTYtN2IwNC00NzI4LWJiMzQtYjZlZjY2MWFiZjc0XkEyXkFqcGc@"},"2499 อันธพาลครองเมือง":{"t":"2499 อันธพาลครองเมือง","en":"Dang Bireley's and Young Gangsters","rt":104,"d":"The rise and fall of a notorious 1950s Bangkok gang leader.","c":"Thailand","g":"Crime drama","by":"Nonzee Nimibutr, 1997","imdb":"https://www.imdb.com/title/tt0129728/","lb":"https://letterboxd.com/film/dang-bireleys-and-young-gangsters/","kind":"classic","po":"MV5BODFmNjUyZDgtMGM2Ny00NmY1LTgzMzAtODY1NzQyNTVjNWY3XkEyXkFqcGc@"},"IN THE FLOW PROGRAMME 1":{"t":"IN THE FLOW PROGRAMME 1","en":"","rt":90,"d":"A shorts programme from the festival's In the Flow strand.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/In%20The%20Flow%20Programme%201/"},"I SEE BUILDINGS FALL LIKE LIGHTNING":{"t":"I SEE BUILDINGS FALL LIKE LIGHTNING","en":"","rt":109,"d":"Five childhood friends in their thirties face disappointment and housing insecurity together.","c":"UK, USA","g":"Drama","by":"Clio Barnard, 2026","imdb":"https://www.imdb.com/title/tt38991615/","lb":"https://letterboxd.com/film/i-see-buildings-fall-like-lightning/","kind":"new","po":"MV5BZmQ4MzAzNjItNmE0OC00ZjAxLWJhNzEtNDhiOWFhMDRhOWI4XkEyXkFqcGc@"},"FIRST CUTS ARE THE DEEPEST":{"t":"FIRST CUTS ARE THE DEEPEST","en":"","rt":106,"d":"A six-year documentary portrait of three Thai children growing through friendship and loss.","c":"Thailand, New Zealand","g":"Documentary","by":"Sopawan Boonnimitra & Peerachai Kerdsint, 2026","imdb":"https://www.imdb.com/title/tt43640539/","lb":"https://letterboxd.com/film/first-cuts-are-the-deepest/","kind":"new","po":"MV5BZTgyZGExNDQtZDIxOS00ZDFkLTllMWMtM2M1MGFjNTk5ODMwXkEyXkFqcGc@"},"ROSE":{"t":"ROSE","en":"","rt":93,"d":"A woman disguises herself as a male soldier to claim an inheritance in a patriarchal, war-torn world.","c":"Austria, Germany","g":"Historical drama","by":"Markus Schleinzer, 2026","imdb":"https://www.imdb.com/title/tt25399154/","lb":"https://letterboxd.com/film/rose-2026/","kind":"new","po":"MV5BYjBjNjE3MzItZmJhMi00ZGJiLTg3NGMtNWUwMDczOTYwMzdiXkEyXkFqcGc@"},"IN THE FLOW PROGRAMME 2":{"t":"IN THE FLOW PROGRAMME 2","en":"","rt":75,"d":"A shorts programme from the festival's In the Flow strand.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/In%20The%20Flow%20Programme%202/"},"MOONGLOW":{"t":"MOONGLOW","en":"","rt":108,"d":"A corrupt detective plans a heist, then has to investigate her own crime alongside an ex-lover.","c":"Philippines, Japan, Singapore","g":"Neo-noir","by":"Isabel Sandoval, 2026","imdb":"https://www.imdb.com/title/tt31722480/","lb":"https://letterboxd.com/film/moonglow-2026/","kind":"new","po":"MV5BYTEwMmMyYzQtMTY2OS00NDg5LThlMDktMTFmNWIyMzY3YWIwXkEyXkFqcGc@"},"QUEEN AT SEA":{"t":"QUEEN AT SEA","en":"","rt":121,"d":"A daughter copes with her mother's advanced dementia while caught between her stepfather and the care system.","c":"UK, USA","g":"Drama","by":"Lance Hammer, 2026","imdb":"https://www.imdb.com/title/tt27541205/","lb":"https://letterboxd.com/film/queen-at-sea/","kind":"new","po":"MV5BOGNiZDM5NjEtNjI1NC00ZmJmLWI4ZjUtZjcxZGZhMWFiZjJlXkEyXkFqcGc@"},"TIN CASTLE":{"t":"TIN CASTLE","en":"","rt":106,"d":"A documentary portrait of an Irish Traveller family, premiered in Cannes Critics' Week.","c":"Ireland","g":"Documentary","by":"Alexander Murphy, 2026","imdb":"https://www.imdb.com/title/tt42053546/","kind":"new","lbs":"https://letterboxd.com/search/films/Tin%20Castle/","po":"MV5BZjQxY2NmMjctMjg3ZC00YjMyLTg4OWYtMzA2Y2FkMWU4MDI1XkEyXkFqcGc@"},"THE SEOUL GUARDIAN":{"t":"THE SEOUL GUARDIAN","en":"","rt":71,"d":"A documentary about the night South Korea's president declared martial law and citizens rushed to defend democracy.","c":"South Korea","g":"Documentary","by":"Kim Jong-woo & Kim Shin-wan, 2026","imdb":"https://www.imdb.com/title/tt39318287/","lb":"https://letterboxd.com/film/the-seoul-guardians/","kind":"new","po":"MV5BYjRmNDk1ZGUtMjIyYS00MmNkLWI3ZDItNmMyMGJmYjA3MDQyXkEyXkFqcGc@"},"SOUMSOUM, THE NIGHT OF THE STARS":{"t":"SOUMSOUM, THE NIGHT OF THE STARS","en":"","rt":101,"d":"A teenage girl with unexplained powers finds guidance through an encounter with an exiled woman.","c":"France, Chad","g":"Drama, Fantasy","by":"Mahamat-Saleh Haroun, 2026","imdb":"https://www.imdb.com/title/tt39075020/","lb":"https://letterboxd.com/film/soumsoum-the-night-of-the-stars/","kind":"new","po":"MV5BNjRjZmQ5N2YtNDRjNS00N2NhLWE4YTQtMDVkOGUyODIwY2Q5XkEyXkFqcGc@"},"IN THE FLOW PROGRAMME 3":{"t":"IN THE FLOW PROGRAMME 3","en":"","rt":75,"d":"A shorts programme from the festival's In the Flow strand.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/In%20The%20Flow%20Programme%203/"},"TEENAGE SEX AND DEATH AT CAMP MIASMA":{"t":"TEENAGE SEX AND DEATH AT CAMP MIASMA","en":"","rt":112,"d":"A young director tries to revive a dying slasher franchise by tracking down its reclusive original star.","c":"UK, USA","g":"Horror comedy","by":"Jane Schoenbrun, 2026","imdb":"https://www.imdb.com/title/tt35298123/","lb":"https://letterboxd.com/film/teenage-sex-and-death-at-camp-miasma/","kind":"new","po":"MV5BOTRlMWM2ZmQtNTljZC00MTg0LTlhNzQtZDg2N2FiMmU1NWY1XkEyXkFqcGc@"},"FATHERLAND":{"t":"FATHERLAND","en":"","rt":82,"d":"An exiled German writer and his daughter cross a ruined, divided post-war Germany to collect a literary prize.","c":"Poland, Germany, France, Italy","g":"Historical drama","by":"Paweł Pawlikowski, 2026","imdb":"https://www.imdb.com/title/tt37304295/","lb":"https://letterboxd.com/film/fatherland-2026/","kind":"new","po":"MV5BY2M5ZmVkMWMtOTNjZS00MjM3LTg3ODYtYjJmMDJjMjU0ODU5XkEyXkFqcGc@"},"RIAR RIZALDI PROGRAMME 1":{"t":"RIAR RIZALDI PROGRAMME 1","en":"","rt":80,"d":"A focus on Indonesian artist-filmmaker Riar Rizaldi (director of Monisme).","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Riar%20Rizaldi%20Programme%201/"},"NOBODY'S VIOLENCE":{"t":"NOBODY'S VIOLENCE","en":"","rt":118,"d":"A woman who helps the terminally ill end their lives is forced to rethink her calling after a chance encounter.","c":"Canada","g":"Drama","by":"Denis Côté, 2026","imdb":"https://www.imdb.com/title/tt38512625/","lb":"https://letterboxd.com/film/nobodys-violence/","kind":"new","po":"MV5BYTRhYzhiNDctZWQ2ZS00NzQxLWI3N2ItM2ViNDRmMzI1NDg4XkEyXkFqcGc@"},"กลิ้งไว้ก่อนพ่อสอนไว้":{"t":"กลิ้งไว้ก่อนพ่อสอนไว้","en":"Kling Wai Korn Por Sorn Wai","rt":116,"d":"A Thai comedy classic.","c":"Thailand","g":"Comedy","by":"","kind":"classic","lbs":"https://letterboxd.com/search/films/Kling%20Wai%20Korn%20Por%20Sorn%20Wai/"},"AQUI":{"t":"AQUI","en":"","rt":203,"d":"In a society without memory, a man adopts a child and searches for the boy's mother.","c":"France, Portugal","g":"Drama","by":"Tiago Guedes, 2026","imdb":"https://www.imdb.com/title/tt38223408/","lb":"https://letterboxd.com/imdb/tt38223408/","kind":"new","po":"MV5BMjAxNTlmMDYtMWJmMi00YmNjLWE4OWMtY2NhMDA4MmE1N2E1XkEyXkFqcGc@"},"RIAR RIZALDI PROGRAMME 2":{"t":"RIAR RIZALDI PROGRAMME 2","en":"","rt":80,"d":"A focus on Indonesian artist-filmmaker Riar Rizaldi (director of Monisme).","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Riar%20Rizaldi%20Programme%202/"},"WE ARE ALIENS":{"t":"WE ARE ALIENS","en":"","rt":117,"d":"Two third-grade boys see their close friendship broken by \"a small incident\" – told from each side.","c":"Japan, France","g":"Drama","by":"Kohei Kadowaki, 2026","imdb":"https://www.imdb.com/title/tt41830798/","lb":"https://letterboxd.com/imdb/tt41830798/","kind":"new","po":"MV5BMGZiZTc3OGUtM2FjNS00Y2E1LTlhY2YtZmNlNzRkOTI5NjI3XkEyXkFqcGc@"},"THE STATION":{"t":"THE STATION","en":"","rt":112,"d":"A woman running Yemen's only female-run petrol station fights to keep her little brother from being conscripted.","c":"Yemen, Jordan, France, Germany +","g":"Drama","by":"Sara Ishaq, 2026","imdb":"https://www.imdb.com/title/tt19516714/","lb":"https://letterboxd.com/film/the-station-2026/","kind":"new","po":"MV5BNzJiNjVhODQtZjNmOC00Mzk4LWEzZTMtMzAzMmY3MmYzOGNmXkEyXkFqcGc@"},"ALL OF A SUDDEN":{"t":"ALL OF A SUDDEN","en":"","rt":196,"d":"A nursing-home director with a humane approach to care forms a deep bond with a terminally ill playwright.","c":"Japan, France, Belgium, Germany","g":"Drama","by":"Ryusuke Hamaguchi, 2026","imdb":"https://www.imdb.com/title/tt36834996/","lb":"https://letterboxd.com/film/all-of-a-sudden-2026/","kind":"new","po":"MV5BZGU1ZTQ4ZDQtYzFjNy00MjVjLTg3MjMtYzdkNDI4NWY5ODQ5XkEyXkFqcGc@"},"IN THE FLOW PROGRAMME 4":{"t":"IN THE FLOW PROGRAMME 4","en":"","rt":95,"d":"A shorts programme from the festival's In the Flow strand.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/In%20The%20Flow%20Programme%204/"},"NINO IN PARADISE":{"t":"NINO IN PARADISE","en":"","rt":117,"d":"A directionless young man drifts through city life with friends while dodging trouble with the police.","c":"Belgium, France","g":"Comedy-drama","by":"Laurent Micheli, 2025","imdb":"https://www.imdb.com/title/tt31540019/","lb":"https://letterboxd.com/film/nino-in-paradise/","kind":"new","po":"MV5BMjI1NTI4NDctYTM5Yi00MjI2LWE4ZjUtODMzZmM1OGIxMWRmXkEyXkFqcGc@"},"COWARD":{"t":"COWARD","en":"","rt":120,"d":"A Belgian soldier looking for redemption in WWI finds unexpected love behind the front lines.","c":"Belgium, France, Netherlands","g":"War drama, Romance","by":"Lukas Dhont, 2026","imdb":"https://www.imdb.com/title/tt39328391/","lb":"https://letterboxd.com/film/coward-2026/","kind":"new","po":"MV5BZWI4MjlhNWMtNDQ1NS00NzFlLTljZTktNTkxNjMwMmNkMWJlXkEyXkFqcGc@"},"NAGI NOTES":{"t":"NAGI NOTES","en":"","rt":110,"d":"Two women work through old heartbreak and questions of identity during a long stay in the countryside.","c":"Japan, France","g":"Drama","by":"Koji Fukada, 2026","imdb":"https://www.imdb.com/title/tt28551050/","lb":"https://letterboxd.com/film/nagi-notes/","kind":"new","note":"SF World's poster says 121 min; Letterboxd lists 110 min.","po":"MV5BNjczZTEzYjMtMWQ4ZC00NzczLWEyMTYtNzU3M2ZhN2QwMTEyXkEyXkFqcGc@"},"BLAISE":{"t":"BLAISE","en":"","rt":83,"d":"An awkward teenager and his people-pleasing family stumble into a chain of misunderstandings.","c":"France","g":"Animated comedy","by":"Jean-Paul Guigue & Dimitri Planchon, 2026","imdb":"https://www.imdb.com/title/tt40424260/","lb":"https://letterboxd.com/film/blaise-2026/","kind":"new","po":"MV5BMTJmZDUyYjEtMWYzZS00ZWI2LTliZDYtOWZiNWM0MzQyYmFkXkEyXkFqcGc@"},"LA GRADIVA":{"t":"LA GRADIVA","en":"","rt":145,"d":"French high-schoolers on a school trip to Pompeii are overwhelmed by desire and despair.","c":"France, Italy","g":"Drama","by":"Marine Atlan, 2026","imdb":"https://www.imdb.com/title/tt36107185/","lb":"https://letterboxd.com/film/la-gradiva/","kind":"new","po":"MV5BMmEzYWMxNTgtMDQxYy00ZTk2LTk0MzYtMjEyNmQ4ZDdkYmNjXkEyXkFqcGc@"},"ELEPHANTS IN THE FOG":{"t":"ELEPHANTS IN THE FOG","en":"","rt":108,"d":"The matriarch of a marginalised transgender community in Nepal searches for her missing daughter.","c":"Nepal, Germany, France, Norway, Brazil","g":"Drama","by":"Abinash Bikram Shah, 2026","imdb":"https://www.imdb.com/title/tt29279937/","lb":"https://letterboxd.com/film/elephants-in-the-fog/","kind":"new","po":"MV5BZGE5NzMxMGYtNDUzYS00OTJiLTllNmEtYTZjNTY2ODM0ODc3XkEyXkFqcGc@"},"IN THE FLOW PROGRAMME 5":{"t":"IN THE FLOW PROGRAMME 5","en":"","rt":75,"d":"A shorts programme from the festival's In the Flow strand.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/In%20The%20Flow%20Programme%205/"},"FRUIT GATHERING":{"t":"FRUIT GATHERING","en":"","rt":97,"d":"A story of friendship between young women in Myanmar – winner of the Crystal Globe at Karlovy Vary 2026.","c":"Myanmar","g":"Drama","by":"Aung Phyoe, 2026","imdb":"https://www.imdb.com/title/tt12922852/","lb":"https://letterboxd.com/film/fruit-gathering/","kind":"new","po":"MV5BMTVlYmZlNjUtMzlhNC00OWY0LWI3ODUtNTBiZGMxMjZmYzZjXkEyXkFqcGc@"},"ASIAN SHORT FILM COMPETITION 1":{"t":"ASIAN SHORT FILM COMPETITION 1","en":"","rt":100,"d":"Shorts in the festival's Asian Short Film Competition, followed by a Q&A.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Asian%20Short%20Film%20Competition%201/"},"WOLFRAM":{"t":"WOLFRAM","en":"","rt":100,"d":"Three Aboriginal children escape captivity in 1930s Australia and cross the harsh outback.","c":"Australia","g":"Western, Drama","by":"Warwick Thornton, 2025","imdb":"https://www.imdb.com/title/tt36826227/","lb":"https://letterboxd.com/film/wolfram/","kind":"new","po":"MV5BNTY0MjBlNzEtNWFiZS00NmE3LTlkYWYtOGQyZWMxMzlhNDliXkEyXkFqcGc@"},"GENTLE MONSTER":{"t":"GENTLE MONSTER","en":"","rt":114,"d":"A pianist uncovers her husband's dark secret and must protect their child.","c":"Austria, Germany, France +","g":"Drama, Thriller","by":"Marie Kreutzer, 2026","imdb":"https://www.imdb.com/title/tt37020296/","lb":"https://letterboxd.com/film/gentle-monster/","kind":"new","po":"MV5BZmU1MWE5MjUtZTE3Ni00NGYzLWIyZTktN2E3ZGNlZjRhMTk2XkEyXkFqcGc@"},"ASIAN SHORT FILM COMPETITION 2":{"t":"ASIAN SHORT FILM COMPETITION 2","en":"","rt":100,"d":"Shorts in the festival's Asian Short Film Competition, followed by a Q&A.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Asian%20Short%20Film%20Competition%202/"},"ASIAN SHORT FILM COMPETITION 3":{"t":"ASIAN SHORT FILM COMPETITION 3","en":"","rt":100,"d":"Shorts in the festival's Asian Short Film Competition, followed by a Q&A.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Asian%20Short%20Film%20Competition%203/"},"FUJIKO":{"t":"FUJIKO","en":"","rt":95,"d":"A woman defies her family and social prejudice to raise her daughter alone.","c":"Japan","g":"Drama","by":"Taichi Kimura, 2026","imdb":"https://www.imdb.com/title/tt41653540/","lb":"https://letterboxd.com/film/fujiko-2026/","kind":"new","po":"MV5BNWY5ZGJiNTMtNmNiZi00ZTkxLTlhNjMtZDdiNTM2MmZmMTFjXkEyXkFqcGc@"},"ALL THE LOVERS IN THE NIGHT":{"t":"ALL THE LOVERS IN THE NIGHT","en":"","rt":139,"d":"A solitary proofreader's quiet life shifts when she falls for a reserved physics teacher.","c":"Japan","g":"Romance, Drama","by":"Yukiko Sode, 2026","imdb":"https://www.imdb.com/title/tt41592995/","lb":"https://letterboxd.com/film/all-the-lovers-in-the-night/","kind":"new","po":"MV5BYjlkYzJkMTUtYjVjMi00MGEyLTgyNzYtMTE1OTU0YmJjMGRiXkEyXkFqcGc@"},"DUA":{"t":"DUA","en":"","rt":101,"d":"A 13-year-old girl comes of age amid war and ethnic tension in 1990s Kosovo.","c":"Kosovo, France, Switzerland","g":"Coming-of-age, War drama","by":"Blerta Basholli, 2026","imdb":"https://www.imdb.com/title/tt38765198/","lb":"https://letterboxd.com/imdb/tt38765198/","kind":"new","po":"MV5BMmM3ZjY2MzMtNTdmOS00ZjFkLTliMzgtY2M1YjliZTE3ZmRjXkEyXkFqcGc@"},"THE BLACK BALL":{"t":"THE BLACK BALL","en":"La bola negra","rt":159,"d":"Three gay men in different eras of Spain's turbulent history search for love and identity.","c":"Spain, France","g":"Drama, LGBTQ+","by":"Javier Ambrossi & Javier Calvo, 2026","imdb":"https://www.imdb.com/title/tt35511966/","lb":"https://letterboxd.com/film/la-bola-negra/","kind":"new","po":"MV5BOGU5ODg4MDMtNjliOS00YWYzLWFlOGUtOGUwMjNmZGUyOWQ0XkEyXkFqcGc@"},"FJORD":{"t":"FJORD","en":"","rt":146,"d":"A Romanian family starting over in Norway faces accusations when their daughter turns up injured at school.","c":"Romania, Norway, France +","g":"Drama","by":"Cristian Mungiu, 2026","imdb":"https://www.imdb.com/title/tt35410859/","lb":"https://letterboxd.com/film/fjord-2026/","kind":"new","po":"MV5BOGQwZTQ0YzgtZjk5Mi00NTg1LTg0MmMtZmNjNGUwYjhjNWJhXkEyXkFqcGc@"},"SILENCED NIGHT":{"t":"SILENCED NIGHT","en":"Silenced Nights","rt":112,"d":"A man who witnessed a police killing risks his safety to expose the truth.","c":"Philippines","g":"Drama","by":"Lawrence Fajardo, 2026","imdb":"https://www.imdb.com/title/tt43699618/","lb":"https://letterboxd.com/imdb/tt43699618/","kind":"new","po":"MV5BNjA0ZGVhMzItM2FhZC00NzhkLTk1MjItN2U4NDdmZjRhZjgxXkEyXkFqcGc@"},"ASIAN SHORT FILM SHOWCASE 2":{"t":"ASIAN SHORT FILM SHOWCASE 2","en":"","rt":100,"d":"A showcase of short films from across Asia.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Asian%20Short%20Film%20Showcase%202/"},"A GIRL UNKNOWN":{"t":"A GIRL UNKNOWN","en":"","rt":125,"d":"An adopted girl makes her way through a changing China in this quiet period drama debut.","c":"China","g":"Period drama","by":"Zou Jing, 2026","imdb":"https://www.imdb.com/title/tt32459280/","lb":"https://letterboxd.com/film/a-girl-unknown/","kind":"new","po":"MV5BNDM5MDg4NGUtZmU1OC00YzY0LThiYzItMmE3MDhkMjNjMmM0XkEyXkFqcGc@"},"SPIRIT GUARDIAN - THE LAST SECRET OF THE FIRST EMPEROR":{"t":"SPIRIT GUARDIAN - THE LAST SECRET OF THE FIRST EMPEROR","en":"Spirit Guardians: The Last Secret of the First Emperor","rt":135,"d":"A Vietnamese historical martial-arts adventure starring Johnny Tri Nguyen.","c":"Vietnam","g":"Action, Historical","by":"Nguyen Phan Quang Binh, 2026","imdb":"https://www.imdb.com/title/tt36966583/","kind":"new","lbs":"https://letterboxd.com/search/films/Spirit%20Guardians%3A%20The%20Last%20Secret%20of%20the%20First%20Emperor/","po":"MV5BMzVlMmFhNmUtMGMxMS00MzA1LTg4MGMtYWEwZGZiMDFjNzY5XkEyXkFqcGc@"},"SISA":{"t":"SISA","en":"","rt":114,"d":"A woman dismissed as mad becomes a symbol of resistance in the colonial-era Philippines.","c":"Philippines","g":"Historical drama","by":"Jun Robles Lana, 2025","imdb":"https://www.imdb.com/title/tt38681775/","lb":"https://letterboxd.com/film/sisa-2025/","kind":"new","po":"MV5BODFiYjQzZjMtYmI1YS00YzdkLWE0OGUtMDlhNmIwOTEzNmM2XkEyXkFqcGc@"},"THE MAN I LOVE":{"t":"THE MAN I LOVE","en":"","rt":95,"d":"A theatre artist living with AIDS chases one last role in 1980s New York.","c":"USA, France","g":"Drama, LGBTQ+","by":"Ira Sachs, 2026","imdb":"https://www.imdb.com/title/tt37522972/","lb":"https://letterboxd.com/film/the-man-i-love-2026/","kind":"new","note":"House Samyan's poster says 101 min; Letterboxd lists 95 min.","po":"MV5BYTJkNzMyYmUtYTdjMy00ZWFlLWFmZmUtMjBiNmQ4M2I4NjFhXkEyXkFqcGc@"},"คู่แท้ 2 โลก":{"t":"คู่แท้ 2 โลก","en":"Koo Tae Song Lok","rt":103,"d":"A young man falls for a woman with amnesia – without knowing she comes from a family of vampires.","c":"Thailand","g":"Romance, Fantasy","by":"Udom Udomroj, 1994","imdb":"https://www.imdb.com/title/tt0110682/","lb":"https://letterboxd.com/film/no-surrender-no-matter-what/","kind":"classic","po":"MV5BNjY4Y2FhZTEtYTJhYS00ZmMzLTk2NTUtOGZhMjc3Mzg3ZjFmXkEyXkFqcGc@"},"FILIPIÑANA":{"t":"FILIPIÑANA","en":"","rt":100,"d":"A young worker at an exclusive Manila golf club sees privilege and corruption up close.","c":"Philippines, Singapore, UK, France +","g":"Drama","by":"Rafael Manuel, 2026","imdb":"https://www.imdb.com/title/tt29512008/","lb":"https://letterboxd.com/film/filipinana-2026/","kind":"new","po":"MV5BYmU3YWJiZTUtZmEyNS00NjFiLWE0NDctMGJjNDM0MTA2MWE1XkEyXkFqcGc@"},"HOME STORIES":{"t":"HOME STORIES","en":"","rt":116,"d":"A young woman chases a singing contest while her estranged aunt's return shakes up an East German family.","c":"Germany","g":"Family drama","by":"Eva Trobisch, 2026","imdb":"https://www.imdb.com/title/tt39382755/","lb":"https://letterboxd.com/film/home-stories-2026/","kind":"new","po":"MV5BMmYyNDQxMTYtNTNlOS00MzUwLTgzMTMtMTBjY2IzOWRjMTA1XkEyXkFqcGc@"},"FOREVER YOUR MATERNAL ANIMAL":{"t":"FOREVER YOUR MATERNAL ANIMAL","en":"","rt":100,"d":"Elsa returns home to Costa Rica and faces family dysfunction as her withdrawn sister turns inward.","c":"Costa Rica, Belgium, France, Mexico","g":"Drama","by":"Valentina Maurel, 2026","imdb":"https://www.imdb.com/title/tt41592077/","lb":"https://letterboxd.com/film/forever-your-maternal-animal/","kind":"new","po":"MV5BMjAwNjhjM2YtNjQwNS00YWQ4LThmODctNGQ5Y2E1MzFiNGJjXkEyXkFqcGc@"},"THE MUTATION":{"t":"THE MUTATION","en":"","rt":110,"d":"Two lonely strangers – a biracial Korean man and a grieving woman – find comfort on a short journey together.","c":"South Korea","g":"Drama","by":"Shin Su-won, 2025","imdb":"https://www.imdb.com/title/tt38445271/","lb":"https://letterboxd.com/imdb/tt38445271/","kind":"new","po":"MV5BZTE3M2E1MDEtMDEyNS00Y2E1LTlmOWYtNzYzNGQ2ZGY1NWY5XkEyXkFqcGc@"},"SOMEONE SPECIAL":{"t":"SOMEONE SPECIAL","en":"","rt":107,"d":"A therapist gets dangerously close to her patient in this Thai–Chinese thriller.","c":"Thailand, China","g":"Thriller","by":"","imdb":"https://www.imdb.com/title/tt45115208/","kind":"new","lbs":"https://letterboxd.com/search/films/Someone%20Special/","po":"MV5BYmYzYWU3ODAtYWFkNy00ZmQwLWFhNzYtYTY4OWVkOGE2ODJkXkEyXkFqcGc@"},"THE PORNOGRAPHERS":{"t":"THE PORNOGRAPHERS","en":"","rt":128,"d":"A small-time maker of blue films juggles his illicit trade and a tangled home life – Imamura's black comedy.","c":"Japan","g":"Black comedy","by":"Shōhei Imamura, 1966","imdb":"https://www.imdb.com/title/tt0060560/","lb":"https://letterboxd.com/film/the-pornographers/","kind":"imamura","po":"MV5BOTI5MGM1NDQtMGVkMi00MThiLWJiZDMtNzdkMDc2NGU5N2VkXkEyXkFqcGc@"},"PELELIU: GUERNICA OF PARADISE":{"t":"PELELIU: GUERNICA OF PARADISE","en":"","rt":106,"d":"Two young Japanese soldiers form a bond while surviving the brutal 1944 Battle of Peleliu.","c":"Japan","g":"Animation, War","by":"Goro Kuji, 2025","imdb":"https://www.imdb.com/title/tt35684792/","lb":"https://letterboxd.com/film/peleliu-guernica-of-paradise/","kind":"new","po":"MV5BOTU3YTE1NmMtZmNhZS00YTQ4LTg1NzUtOTllYzVmMTY0ZmZlXkEyXkFqcGc@"},"SLEEP NO MORE":{"t":"SLEEP NO MORE","en":"","rt":96,"d":"Sisters investigating their mother's strange death at a wig factory are stalked by a supernatural presence.","c":"Indonesia, Japan, Singapore +","g":"Horror comedy","by":"Edwin, 2026","imdb":"https://www.imdb.com/title/tt34663597/","lb":"https://letterboxd.com/film/sleep-no-more-2026/","kind":"new","po":"MV5BMzM1ZDJhYzYtNmU2OS00MGEyLWFhNjMtNjE2NjdlZGIwMGU0XkEyXkFqcGc@"},"DR. AKAGI":{"t":"DR. AKAGI","en":"","rt":128,"d":"A devoted country doctor races to fight a hepatitis outbreak in the last days of WWII.","c":"Japan","g":"Drama","by":"Shōhei Imamura, 1998","imdb":"https://www.imdb.com/title/tt0155796/","lb":"https://letterboxd.com/film/dr-akagi/","kind":"imamura","po":"MV5BZDJjZDJmNmMtMDQzMS00NDY5LTg1OWYtY2I5MzlkYjg5YzRhXkEyXkFqcGc@"},"NEXT STEP STUDIO INDONESIA":{"t":"NEXT STEP STUDIO INDONESIA","en":"","rt":91,"d":"A showcase from the Next Step Studio Indonesia programme, with Q&A.","kind":"shorts","by":"","c":"","g":"Shorts","lbs":"https://letterboxd.com/search/films/Next%20Step%20Studio%20Indonesia/"},"FLESH & FUEL":{"t":"FLESH & FUEL","en":"","rt":91,"d":"A French trucker falls for a Polish driver on the long-haul roads of Europe.","c":"France, Poland","g":"Romance, LGBTQ+","by":"Pierre le Gall, 2026","imdb":"https://www.imdb.com/title/tt35495082/","lb":"https://letterboxd.com/film/flesh-fuel/","kind":"new","po":"MV5BOWYxNmMxODMtODZhMC00NjkxLTkxNjgtYjY4OThmOGY5ZDRiXkEyXkFqcGc@"},"ATLANTIC RHAPSODY":{"t":"ATLANTIC RHAPSODY","en":"","rt":102,"d":"After accidentally cooking a shop's pet shark, a man starts hearing voices and digs into his father's past.","c":"China","g":"Drama, Fantasy","by":"Zhong Kaifeng, 2026","imdb":"https://www.imdb.com/title/tt32272953/","lb":"https://letterboxd.com/film/atlantic-rhapsody-2026/","kind":"new","po":"MV5BYjRhZTc1MTQtZWJmMy00YzUwLWIyNzAtMjdmYzc1YmUzZGM4XkEyXkFqcGc@"},"NINA ROZA":{"t":"NINA ROZA","en":"","rt":103,"d":"An emigrant returns to Bulgaria after 30 years to assess a young painter's work and faces his own past.","c":"Canada, Bulgaria, Italy, Belgium","g":"Drama","by":"Geneviève Dulude-De Celles, 2026","imdb":"https://www.imdb.com/title/tt29271639/","lb":"https://letterboxd.com/film/fleur-bleue-1/","kind":"new","po":"MV5BZmMxMGM0NTQtZWUxZi00NGY0LTgyMWItNTUzZWM4NDVlMTA0XkEyXkFqcGc@"},"A LIGHT IN THE HARBOUR":{"t":"A LIGHT IN THE HARBOUR","en":"A Light in the Harbor","rt":118,"d":"An ageing ex-yakuza puts himself on the line to protect a blind orphan he has come to love.","c":"Japan","g":"Crime drama","by":"Michihito Fujii, 2025","imdb":"https://www.imdb.com/title/tt38754035/","lb":"https://letterboxd.com/film/a-light-in-the-harbor/","kind":"new","po":"MV5BMmY3NDQwOTUtODA0OS00NGViLWE5NTItZTdiNjAwZDQ5YTkzXkEyXkFqcGc@"},"YELLOW LETTERS":{"t":"YELLOW LETTERS","en":"","rt":127,"d":"After losing their jobs, a couple must move in with family in Istanbul under a repressive political climate.","c":"Germany, France, Turkey","g":"Drama","by":"İlker Çatak, 2026","imdb":"https://www.imdb.com/title/tt32888226/","lb":"https://letterboxd.com/film/yellow-letters/","kind":"new","note":"Printed as “Yellow Letter” on the Paragon poster.","po":"MV5BMTQ2Y2UzMDYtNTcyZC00ZTY5LTliMWEtZjgzMGQ1NWQxMjdmXkEyXkFqcGc@"},"PROFOUND DESIRES OF THE GODS":{"t":"PROFOUND DESIRES OF THE GODS","en":"","rt":173,"d":"A Tokyo engineer sent to a remote southern island meets a clan that resists modern life – Imamura's epic.","c":"Japan","g":"Drama","by":"Shōhei Imamura, 1968","imdb":"https://www.imdb.com/title/tt0063173/","lb":"https://letterboxd.com/film/profound-desires-of-the-gods/","kind":"imamura","po":"MV5BZGYxNGZmNjYtZDcyOS00MDNlLWJjNWItNmVjZWZhYTMzNTBmXkEyXkFqcGc@"},"DEEP QUIET ROOM":{"t":"DEEP QUIET ROOM","en":"","rt":107,"d":"A man caring for his late wife's father uncovers painful family secrets.","c":"Taiwan, Poland, Italy","g":"Mystery drama","by":"Shen Ko-shang, 2025","imdb":"https://www.imdb.com/title/tt36354070/","lb":"https://letterboxd.com/film/deep-quiet-room/","kind":"new","po":"MV5BZjE1M2E4ZmItOTU2NS00MjgxLTljZDctM2Y4NjI0MjNiMTg3XkEyXkFqcGc@"},"THE BALLAD OF NARAYAMA":{"t":"THE BALLAD OF NARAYAMA","en":"","rt":130,"d":"In a remote village, 70-year-olds are carried up the mountain to die; a son prepares to take his mother. Palme d'Or 1983.","c":"Japan","g":"Drama","by":"Shōhei Imamura, 1983","imdb":"https://www.imdb.com/title/tt0084390/","lb":"https://letterboxd.com/film/the-ballad-of-narayama/","kind":"imamura","po":"MV5BNjc4ODczOGYtMDE3YS00ZjIxLTkzMWUtOTEwOGVkODhlN2I1XkEyXkFqcGc@"},"BLACK RAIN":{"t":"BLACK RAIN","en":"","rt":123,"d":"Years after Hiroshima, a young woman exposed to radioactive \"black rain\" struggles to find a husband amid stigma.","c":"Japan","g":"Drama","by":"Shōhei Imamura, 1989","imdb":"https://www.imdb.com/title/tt0097694/","lb":"https://letterboxd.com/film/black-rain-1989/","kind":"imamura","po":"MV5BMWFiODcwNjMtMDZlZC00MTE1LTg1MmItMzk1YzUxY2FlNDQ5XkEyXkFqcGc@"},"ROSEBUSH PRUNING":{"t":"ROSEBUSH PRUNING","en":"","rt":99,"d":"Wealthy American siblings in a Spanish villa unravel when one of them tries to break away.","c":"Germany, Italy, UK, Spain +","g":"Drama, Thriller","by":"Karim Aïnouz, 2026","imdb":"https://www.imdb.com/title/tt27844906/","lb":"https://letterboxd.com/film/rosebush-pruning/","kind":"new","po":"MV5BYjkyZWI0OTgtMzU2Mi00N2U0LTk0NDAtYmY5ODA4ODZmOWM0XkEyXkFqcGc@"},"CONGO BOY":{"t":"CONGO BOY","en":"","rt":91,"d":"A gifted teenage musician in war-torn Central Africa balances family duty and his ambitions.","c":"Central African Rep., DR Congo, France, Italy","g":"Drama, Music","by":"Rafiki Fariala, 2026","imdb":"https://www.imdb.com/title/tt41592086/","lb":"https://letterboxd.com/film/congo-boy/","kind":"new","note":"SF World's poster says 94 min; Letterboxd lists 91 min.","po":"MV5BOGU5NzAxMzQtODkzNy00NTJjLWExMmItODg0YmIzNzE4MmQxXkEyXkFqcGc@"},"TELL ME EVERYTHING":{"t":"TELL ME EVERYTHING","en":"","rt":109,"d":"During the '80s HIV crisis a boy learns his father's hidden truth, then spends years seeking reconciliation.","c":"Israel, France, UK","g":"Drama","by":"Moshe Rosenthal, 2026","imdb":"https://www.imdb.com/title/tt39149971/","lb":"https://letterboxd.com/imdb/tt39149971/","kind":"new","po":"MV5BODhkMzZhNTUtOTY4NS00NzhkLTk2MzgtYzkzZGY5ZjY3NDI4XkEyXkFqcGc@"},"PRIMITIVE DIVERSITY":{"t":"PRIMITIVE DIVERSITY","en":"","rt":80,"d":"Veteran filmmaker Alexander Kluge plays with AI-made imagery to question cinema, reality and simulation.","c":"Germany","g":"Experimental documentary","by":"Alexander Kluge, 2025","imdb":"https://www.imdb.com/title/tt35876824/","lb":"https://letterboxd.com/film/primitive-diversity/","kind":"new","po":"MV5BMzMyMWJlZjUtYzUwMi00NGI3LWJmMDMtNjgxMDJiMmQzMWI1XkEyXkFqcGc@"},"HUNTER'S MOON":{"t":"HUNTER'S MOON","en":"","rt":99,"d":"An Indian independent film about the fragile line between human want and the untamed wild.","c":"India","g":"Drama","by":"Ridham Janve, 2026","imdb":"https://www.imdb.com/title/tt43601404/","lb":"https://letterboxd.com/film/hunters-moon-2026/","kind":"new","po":"MV5BOWI5NmE0ZWMtZmMzYi00NTI2LTkyOTYtNTEyMmNiNWRjMTkwXkEyXkFqcGc@"},"THE DAY SHE RETURNS":{"t":"THE DAY SHE RETURNS","en":"","rt":85,"d":"An actress struggles to recall what she said in old press interviews while revisiting them in an acting class.","c":"South Korea","g":"Drama","by":"Hong Sang-soo, 2026","imdb":"https://www.imdb.com/title/tt39368030/","lb":"https://letterboxd.com/film/the-day-she-returns/","kind":"new","po":"MV5BYTBlMGQwYmYtZWRlZi00ZTMzLThkYjgtMjkwMzczZTllZDg3XkEyXkFqcGc@"},"THE EEL":{"t":"THE EEL","en":"","rt":117,"d":"Released from prison, a man opens a barbershop and confides only in his pet eel. Palme d'Or 1997.","c":"Japan","g":"Drama","by":"Shōhei Imamura, 1997","imdb":"https://www.imdb.com/title/tt0120408/","lb":"https://letterboxd.com/film/the-eel/","kind":"imamura","po":"MV5BYzhhMTM3MTAtYzllOC00YzVlLThiYjAtMWRlNGY0Yjg2MzRhXkEyXkFqcGc@"},"THE DREAMED ADVENTURE":{"t":"THE DREAMED ADVENTURE","en":"","rt":167,"d":"A woman in a Bulgarian border region gets drawn into a friend's shady dealings, with risky results.","c":"Germany, France, Austria, Bulgaria","g":"Drama, Thriller","by":"Valeska Grisebach, 2026","imdb":"https://www.imdb.com/title/tt21188986/","lb":"https://letterboxd.com/film/the-dreamed-adventure/","kind":"new","po":"MV5BZjE3ODNkMTAtYTJmNy00Njc5LTliYmUtMGU3NDkyMmQzZjExXkEyXkFqcGc@"},"MONISME":{"t":"MONISME","en":"","rt":116,"d":"A hybrid of documentary and fiction about Mount Merapi, seen through science and mysticism.","c":"Indonesia, Qatar","g":"Experimental","by":"Riar Rizaldi, 2023","imdb":"https://www.imdb.com/title/tt28632197/","lb":"https://letterboxd.com/film/monisme/","kind":"new","po":"MV5BZjY0YTIzZDQtYmFhMC00Y2M2LWIwOTEtNDBhMWM0M2YzOGVmXkEyXkFqcGc@"},"A WOMAN'S LIFE":{"t":"A WOMAN'S LIFE","en":"","rt":98,"d":"A surgeon's carefully built life is disturbed when a novelist enters it.","c":"France, Belgium","g":"Drama","by":"Charline Bourgeois-Tacquet, 2026","imdb":"https://www.imdb.com/title/tt39299437/","lb":"https://letterboxd.com/imdb/tt39299437/","kind":"new","po":"MV5BZWIyNDQxYjktZGVkMC00ZjI4LWE4MWMtM2Y5MzQzODdlNWFlXkEyXkFqcGc@"},"PARALLEL TALES":{"t":"PARALLEL TALES","en":"","rt":139,"d":"A novelist spies on her neighbours for material, then hires a young man who blurs fiction and reality.","c":"France, Belgium, Italy, USA","g":"Drama","by":"Asghar Farhadi, 2026","imdb":"https://www.imdb.com/title/tt36646880/","lb":"https://letterboxd.com/film/parallel-tales/","kind":"new","po":"MV5BODdjMzdiMTgtNmMxZS00MDVjLTg0ZTUtODI0ODU0M2NjZDQ0XkEyXkFqcGc@"},"MINOTAUR":{"t":"MINOTAUR","en":"","rt":135,"d":"A Russian executive's life unravels as personal betrayal collides with his country's war.","c":"Latvia, France, Germany","g":"Drama, Thriller","by":"Andrey Zvyagintsev, 2026","imdb":"https://www.imdb.com/title/tt37118301/","lb":"https://letterboxd.com/film/minotaur-2026/","kind":"new","po":"MV5BZjEwOWY3YTAtYzVlYS00YTdlLWJkMGQtMjkwM2M3NTMxZTY1XkEyXkFqcGc@"},"CYCLONE":{"t":"CYCLONE","en":"","rt":100,"d":"A young woman fights patriarchal limits to pursue theatre in early-1900s São Paulo.","c":"Brazil","g":"Historical drama","by":"Flávia Castro, 2025","imdb":"https://www.imdb.com/title/tt27918213/","lb":"https://letterboxd.com/film/cyclone-2025/","kind":"new","po":"MV5BMmU1M2Q3OTUtYzFjNy00MjJlLTgxN2ItMTI0YTI3MmY2Y2RiXkEyXkFqcGc@"},"WE ARE ALL STRANGERS":{"t":"WE ARE ALL STRANGERS","en":"","rt":157,"d":"Two Singapore families face life-changing crises that redraw their relationships across generations.","c":"Singapore, Australia","g":"Drama","by":"Anthony Chen, 2026","imdb":"https://www.imdb.com/title/tt13848364/","lb":"https://letterboxd.com/film/we-are-all-strangers/","kind":"new","po":"MV5BMDM0YmQxYTYtYTc2Ni00ZDUzLTg3NjUtZWIwNDMzNGYyNzYwXkEyXkFqcGc@"},"BEN'IMANA":{"t":"BEN'IMANA","en":"","rt":101,"d":"A Rwandan genocide survivor leads reconciliation sessions while facing her daughter's pregnancy and her own past.","c":"Rwanda, France, Norway, Gabon","g":"Drama","by":"Marie-Clémentine Dusabejambo, 2026","imdb":"https://www.imdb.com/title/tt38820979/","lb":"https://letterboxd.com/film/benimana/","kind":"new","po":"MV5BYWE0Mzk4NzAtZTcwZi00YTk1LTlmNGMtZTMyOTI1YjAxMmNmXkEyXkFqcGc@"},"I UNDERSTAND YOUR DISPLEASURE":{"t":"I UNDERSTAND YOUR DISPLEASURE","en":"","rt":93,"d":"A cleaning-company manager is caught between loyalty to her workers and keeping the business alive.","c":"Germany","g":"Drama","by":"Kilian Armando Friedrich, 2026","imdb":"https://www.imdb.com/title/tt39368062/","lb":"https://letterboxd.com/film/i-understand-your-displeasure/","kind":"new","po":"MV5BZGYzNmMwMjEtZmMxNi00MGU0LWFmNmYtZWI2MjQxYjA4NjQxXkEyXkFqcGc@"},"THE BIRTHDAY PARTY":{"t":"THE BIRTHDAY PARTY","en":"","rt":121,"d":"A family birthday at an isolated marshland house turns chaotic when uninvited intruders show up.","c":"France, Belgium","g":"Thriller","by":"Léa Mysius, 2026","imdb":"https://www.imdb.com/title/tt30495381/","lb":"https://letterboxd.com/imdb/tt30495381/","kind":"new","note":"Best match: Léa Mysius's 2026 film (114 min). The posters say 121 min, so check before you go.","po":"MV5BMzVmNGQ5MjgtZDQ5Yi00ZDgwLTk0ZGMtZDQwNGJmODUwNTY0XkEyXkFqcGc@"},"VENGEANCE IS MINE":{"t":"VENGEANCE IS MINE","en":"","rt":140,"d":"A fractured portrait of a serial killer on the run, his crimes and his relationships – Imamura's classic.","c":"Japan","g":"Crime drama","by":"Shōhei Imamura, 1979","imdb":"https://www.imdb.com/title/tt0079182/","lb":"https://letterboxd.com/film/vengeance-is-mine/","kind":"imamura","po":"MV5BNWI4OTM0ZDctNjM0NS00MzMyLWJlMzctOWUyNDFkYmY3NjNlXkEyXkFqcGc@"},"THE SAMURAI AND THE PRISONER":{"t":"THE SAMURAI AND THE PRISONER","en":"","rt":147,"d":"A lord under siege recruits a prisoner from his dungeon to solve murders threatening his castle.","c":"Japan","g":"Historical mystery","by":"Kiyoshi Kurosawa, 2026","imdb":"https://www.imdb.com/title/tt39602215/","lb":"https://letterboxd.com/film/the-samurai-and-the-prisoner/","kind":"new","po":"MV5BYTg0MWVmMTAtZWZkNS00ZjM3LTkxODgtMDQzZjJiYWNjZDUzXkEyXkFqcGc@"},"THE BULLET TRAIN":{"t":"THE BULLET TRAIN","en":"","rt":152,"d":"A bomb on a bullet train will explode if the train slows below 80 km/h – the classic Japanese thriller.","c":"Japan","g":"Thriller","by":"Junya Satō, 1975","imdb":"https://www.imdb.com/title/tt0080479/","lb":"https://letterboxd.com/film/the-bullet-train/","kind":"classic","po":"MV5BNjcyNjJiNTktNjJhYi00NzUzLTk4NTYtZWVhM2Y2Zjc0NDBkXkEyXkFqcGc@"},"I BLEW THE CANDLES BEFORE MAKING A WISH":{"t":"I BLEW THE CANDLES BEFORE MAKING A WISH","en":"I Blew Out the Candles Before Making a Wish","rt":116,"d":"A young woman teams up with a debt collector to gamble her inherited casino chips in Macau.","c":"Taiwan, Hong Kong","g":"Crime drama","by":"Chao Koi-Wang & Yen Hu, 2026","imdb":"https://www.imdb.com/title/tt42129386/","lb":"https://letterboxd.com/film/i-blew-out-the-candles-before-making-a-wish/","kind":"new","po":"MV5BNzM2YmFjZjgtOTFiNS00ZmI2LTk5NjktYTZiMGQ4ODE1NTViXkEyXkFqcGc@"},"THE BLOOD COUNTESS":{"t":"THE BLOOD COUNTESS","en":"","rt":119,"d":"A centuries-old vampire countess and her servant hunt for a potion of immortality.","c":"Austria, Luxembourg, Germany","g":"Horror comedy, Fantasy","by":"Ulrike Ottinger, 2026","imdb":"https://www.imdb.com/title/tt28151657/","lb":"https://letterboxd.com/film/the-blood-countess/","kind":"new","po":"MV5BYjA5ODY3ODItYWQ5MS00MmZiLTg5ZWYtMzg4ODMxODI1OGQ3XkEyXkFqcGc@"},"ENJOY YOUR STAY":{"t":"ENJOY YOUR STAY","en":"","rt":99,"d":"An undocumented Filipina cleaner at a Swiss resort bends her morals for money to keep her daughter.","c":"Switzerland, France, Philippines","g":"Drama","by":"Dominik Locher, 2026","imdb":"https://www.imdb.com/title/tt38809417/","lb":"https://letterboxd.com/film/enjoy-your-stay-2026/","kind":"new","po":"MV5BNWIzZjQwOTAtNWJmYi00MmM5LWJhZmEtOTQ1ZGMwM2ZkMzJjXkEyXkFqcGc@"},"พริกขี้หนูกับหมูแฮม":{"t":"พริกขี้หนูกับหมูแฮม","en":"Prik Kee Noo Kub Moo Ham (Chilies and Bacon)","rt":116,"d":"A romance between a Thai woman and a Western man – one of the first Thai films about life abroad.","c":"Thailand","g":"Romance","by":"1989","kind":"classic","lbs":"https://letterboxd.com/search/films/Prik%20Kee%20Noo%20Kub%20Moo%20Ham%20%28Chilies%20and%20Bacon%29/"},"THE WOLF":{"t":"THE WOLF","en":"","rt":89,"d":"Screening with the director in attendance. We couldn't confirm which film this is yet.","c":"","g":"","by":"","kind":"new","lbs":"https://letterboxd.com/search/films/The%20Wolf/"},"ZSAZSA ZATURNNAH":{"t":"ZSAZSA ZATURNNAH","en":"","rt":86,"d":"A closeted man turns into a flamboyant superheroine to fight aliens – and find love.","c":"Philippines, France","g":"Animated comedy","by":"Avid Liongoren, 2026","imdb":"https://www.imdb.com/title/tt18347592/","lb":"https://letterboxd.com/film/zsazsa-zaturnnah-vs-the-amazonistas-of-planet/","kind":"new","po":"MV5BNDJiYWRhNjAtZWI1My00MzllLWEwZDktMDZiYTYwYjAyZmZlXkEyXkFqcGc@"},"MOTHER BHUMI":{"t":"MOTHER BHUMI","en":"","rt":129,"d":"A widow practising folk magic in a village on the Malaysia–Thailand border faces dark secrets.","c":"Malaysia, Hong Kong, Taiwan +","g":"Folk horror","by":"Chong Keat Aun, 2025","imdb":"https://www.imdb.com/title/tt33708662/","lb":"https://letterboxd.com/film/mother-bhumi/","kind":"new","note":"The SF World poster says 99 min – it looks swapped with Ah Girl. Letterboxd lists 129 min.","po":"MV5BYzNhOWYxNDktZDE5ZS00MTI5LTllM2QtNmE0ZjI1NWYyOGI3XkEyXkFqcGc@"},"AH GIRL":{"t":"AH GIRL","en":"","rt":99,"d":"A seven-year-old is caught in family upheaval when her separated parents make her choose between them.","c":"Singapore","g":"Coming-of-age drama","by":"Ang Geck Geck, 2026","imdb":"https://www.imdb.com/title/tt35683770/","lb":"https://letterboxd.com/film/ah-girl/","kind":"new","note":"The SF World poster says 129 min – it looks swapped with Mother Bhumi. Letterboxd lists 99 min.","po":"MV5BZTFjNzA1NjQtMTJkNy00MGM1LTlhMTAtMDc5ZTM1NTcwYjZiXkEyXkFqcGc@"}},"venues":[{"id":"ICON","mall":"ICONSIAM","cinema":"Icon Cineconic"},{"id":"SAM","mall":"Samyan Mitrtown","cinema":"House Samyan"},{"id":"PAR","mall":"Siam Paragon","cinema":"Paragon Cineplex"},{"id":"SF","mall":"CentralWorld","cinema":"SF World Cinema"},{"id":"C11","mall":"Cloud 11","cinema":"Doc Club & Friends"}],"screenings":[{"id":1,"d":13,"t":"20:30","f":"9 TEMPLES TO HEAVEN","v":"ICON","th":"TH-2 · 5 · 6","sp":"Opening"},{"id":2,"d":14,"t":"17:00","f":"UNTIL SHE REMEMBERS","v":"ICON","th":"TH-5","qa":1},{"id":3,"d":14,"t":"20:00","f":"THE MAGE","v":"ICON","th":"TH-5","qa":1},{"id":4,"d":15,"t":"15:00","f":"ANIMATION SHORT FILM PROGRAM","v":"ICON","th":"TH-5"},{"id":5,"d":15,"t":"18:00","f":"นางนาก","v":"ICON","th":"TH-5"},{"id":6,"d":15,"t":"20:30","f":"ASIAN SHORT FILM SHOWCASE 1","v":"ICON","th":"TH-5","qa":1},{"id":7,"d":16,"t":"13:00","f":"ฉลุย","v":"ICON","th":"TH-5"},{"id":8,"d":16,"t":"15:50","f":"ฉลุยโครงการ 2","v":"ICON","th":"TH-5"},{"id":9,"d":16,"t":"18:15","f":"WE'RE NOTHING AT ALL","v":"ICON","th":"TH-5","qa":1},{"id":10,"d":17,"t":"13:00","f":"HOME STORIES","v":"PAR","th":"TH-14"},{"id":11,"d":17,"t":"15:40","f":"THE BIRTHDAY PARTY","v":"SF","th":"TH-3"},{"id":12,"d":17,"t":"16:00","f":"WE ARE ALIENS","v":"PAR","th":"TH-14"},{"id":13,"d":17,"t":"16:05","f":"IN THE FLOW PROGRAMME 1","v":"SAM","th":"TH-4"},{"id":14,"d":17,"t":"17:45","f":"FIRST CUTS ARE THE DEEPEST","v":"SAM","th":"TH-4","qa":1},{"id":15,"d":17,"t":"18:00","f":"GENTLE MONSTER","v":"SF","th":"TH-3"},{"id":16,"d":17,"t":"18:00","f":"รักแรกอุ้ม","v":"C11","th":""},{"id":17,"d":17,"t":"18:40","f":"ALL THE LOVERS IN THE NIGHT","v":"PAR","th":"TH-14"},{"id":18,"d":17,"t":"19:00","f":"I SEE BUILDINGS FALL LIKE LIGHTNING","v":"SAM","th":"TH-3"},{"id":19,"d":17,"t":"20:15","f":"YELLOW LETTERS","v":"SF","th":"TH-3"},{"id":20,"d":17,"t":"21:05","f":"ROSE","v":"SAM","th":"TH-3"},{"id":21,"d":17,"t":"21:40","f":"BLAISE","v":"PAR","th":"TH-14"},{"id":22,"d":18,"t":"13:30","f":"FOREVER YOUR MATERNAL ANIMAL","v":"PAR","th":"TH-14"},{"id":23,"d":18,"t":"16:00","f":"THE MUTATION","v":"PAR","th":"TH-14"},{"id":24,"d":18,"t":"16:00","f":"A WOMAN'S LIFE","v":"SF","th":"TH-3"},{"id":25,"d":18,"t":"16:05","f":"IN THE FLOW PROGRAMME 2","v":"SAM","th":"TH-4","qa":1},{"id":26,"d":18,"t":"16:50","f":"MOONGLOW","v":"SAM","th":"TH-3"},{"id":27,"d":18,"t":"18:00","f":"BEN'IMANA","v":"SF","th":"TH-3"},{"id":28,"d":18,"t":"18:00","f":"บุญตั้งไข่","v":"C11","th":""},{"id":29,"d":18,"t":"18:30","f":"TEENAGE SEX AND DEATH AT CAMP MIASMA","v":"PAR","th":"TH-14"},{"id":30,"d":18,"t":"18:55","f":"QUEEN AT SEA","v":"SAM","th":"TH-3"},{"id":31,"d":18,"t":"20:00","f":"THE DREAMED ADVENTURE","v":"SF","th":"TH-3"},{"id":32,"d":18,"t":"21:05","f":"SOMEONE SPECIAL","v":"PAR","th":"TH-14","qa":1},{"id":33,"d":18,"t":"21:10","f":"TIN CASTLE","v":"SAM","th":"TH-3"},{"id":34,"d":19,"t":"13:00","f":"THE PORNOGRAPHERS","v":"PAR","th":"TH-14"},{"id":35,"d":19,"t":"13:00","f":"I UNDERSTAND YOUR DISPLEASURE","v":"SF","th":"TH-3"},{"id":36,"d":19,"t":"13:25","f":"THE SEOUL GUARDIAN","v":"SAM","th":"TH-3"},{"id":37,"d":19,"t":"14:50","f":"SOUMSOUM, THE NIGHT OF THE STARS","v":"SAM","th":"TH-3"},{"id":38,"d":19,"t":"15:00","f":"LA GRADIVA","v":"SF","th":"TH-3"},{"id":39,"d":19,"t":"15:35","f":"IN THE FLOW PROGRAMME 3","v":"SAM","th":"TH-4","qa":1},{"id":40,"d":19,"t":"15:50","f":"NOBODY'S VIOLENCE","v":"PAR","th":"TH-14"},{"id":41,"d":19,"t":"17:45","f":"A LIGHT IN THE HARBOUR","v":"SF","th":"TH-3"},{"id":42,"d":19,"t":"18:00","f":"THE SAMURAI AND THE PRISONER","v":"SF","th":"TH-7"},{"id":43,"d":19,"t":"18:30","f":"PELELIU: GUERNICA OF PARADISE","v":"PAR","th":"TH-14"},{"id":44,"d":19,"t":"20:05","f":"THE BULLET TRAIN","v":"SF","th":"TH-3"},{"id":45,"d":19,"t":"20:15","f":"TEENAGE SEX AND DEATH AT CAMP MIASMA","v":"SAM","th":"TH-3"},{"id":46,"d":19,"t":"21:00","f":"SLEEP NO MORE","v":"PAR","th":"TH-14","qa":1},{"id":47,"d":20,"t":"13:00","f":"DR. AKAGI","v":"PAR","th":"TH-14"},{"id":48,"d":20,"t":"13:00","f":"HOME STORIES","v":"SF","th":"TH-3"},{"id":49,"d":20,"t":"13:30","f":"FATHERLAND","v":"SAM","th":"TH-3"},{"id":50,"d":20,"t":"13:55","f":"RIAR RIZALDI PROGRAMME 1","v":"SAM","th":"TH-4"},{"id":51,"d":20,"t":"15:00","f":"สยึมกึ๋ย","v":"C11","th":""},{"id":52,"d":20,"t":"15:15","f":"PARALLEL TALES","v":"SF","th":"TH-3"},{"id":53,"d":20,"t":"15:30","f":"NOBODY'S VIOLENCE","v":"SAM","th":"TH-4"},{"id":54,"d":20,"t":"15:50","f":"NEXT STEP STUDIO INDONESIA","v":"PAR","th":"TH-14","qa":1},{"id":55,"d":20,"t":"17:00","f":"ปีหนึ่งเพื่อนกัน และวันอัศจรรย์ของผม","v":"C11","th":""},{"id":56,"d":20,"t":"18:00","f":"MINOTAUR","v":"SF","th":"TH-3"},{"id":57,"d":20,"t":"18:25","f":"ALL OF A SUDDEN","v":"PAR","th":"TH-14"},{"id":58,"d":20,"t":"18:55","f":"กลิ้งไว้ก่อนพ่อสอนไว้","v":"SAM","th":"TH-3"},{"id":59,"d":20,"t":"20:35","f":"I BLEW THE CANDLES BEFORE MAKING A WISH","v":"SF","th":"TH-3","qa":1},{"id":60,"d":20,"t":"21:05","f":"AQUI","v":"SAM","th":"TH-3"},{"id":61,"d":20,"t":"22:25","f":"FLESH & FUEL","v":"PAR","th":"TH-14"},{"id":62,"d":21,"t":"13:30","f":"ATLANTIC RHAPSODY","v":"PAR","th":"TH-14"},{"id":63,"d":21,"t":"15:45","f":"FIRST CUTS ARE THE DEEPEST","v":"SF","th":"TH-3","qa":1},{"id":64,"d":21,"t":"16:00","f":"RIAR RIZALDI PROGRAMME 2","v":"SAM","th":"TH-4","qa":1},{"id":65,"d":21,"t":"16:00","f":"NINA ROZA","v":"PAR","th":"TH-14"},{"id":66,"d":21,"t":"16:50","f":"WE ARE ALIENS","v":"SAM","th":"TH-3"},{"id":67,"d":21,"t":"18:00","f":"รักแท้บทที่ 1","v":"C11","th":""},{"id":68,"d":21,"t":"18:15","f":"THE DAY SHE RETURNS","v":"SF","th":"TH-3"},{"id":69,"d":21,"t":"18:30","f":"NINO IN PARADISE","v":"PAR","th":"TH-14"},{"id":70,"d":21,"t":"19:05","f":"THE STATION","v":"SAM","th":"TH-3"},{"id":71,"d":21,"t":"20:00","f":"THE BLOOD COUNTESS","v":"SF","th":"TH-3"},{"id":72,"d":21,"t":"21:10","f":"FOREVER YOUR MATERNAL ANIMAL","v":"PAR","th":"TH-14"},{"id":73,"d":21,"t":"21:15","f":"ALL OF A SUDDEN","v":"SAM","th":"TH-3"},{"id":74,"d":22,"t":"13:30","f":"A LIGHT IN THE HARBOUR","v":"PAR","th":"TH-14"},{"id":75,"d":22,"t":"16:00","f":"IN THE FLOW PROGRAMME 4","v":"SAM","th":"TH-4"},{"id":76,"d":22,"t":"16:00","f":"NINA ROZA","v":"SF","th":"TH-3"},{"id":77,"d":22,"t":"16:10","f":"YELLOW LETTERS","v":"PAR","th":"TH-14"},{"id":78,"d":22,"t":"16:20","f":"NINO IN PARADISE","v":"SAM","th":"TH-3"},{"id":79,"d":22,"t":"18:00","f":"303 กลัว กล้า อาฆาต","v":"C11","th":""},{"id":80,"d":22,"t":"18:05","f":"FATHERLAND","v":"SF","th":"TH-3"},{"id":81,"d":22,"t":"18:35","f":"COWARD","v":"SAM","th":"TH-3"},{"id":82,"d":22,"t":"19:00","f":"WOLFRAM","v":"PAR","th":"TH-14","qa":1},{"id":83,"d":22,"t":"19:50","f":"CONGO BOY","v":"SF","th":"TH-3","rt":91},{"id":84,"d":22,"t":"20:50","f":"NAGI NOTES","v":"SAM","th":"TH-3","rt":110},{"id":85,"d":22,"t":"21:40","f":"PROFOUND DESIRES OF THE GODS","v":"PAR","th":"TH-14"},{"id":86,"d":23,"t":"13:30","f":"WE'RE NOTHING AT ALL","v":"PAR","th":"TH-14"},{"id":87,"d":23,"t":"15:15","f":"ENJOY YOUR STAY","v":"SF","th":"TH-3","qa":1},{"id":88,"d":23,"t":"16:20","f":"BLAISE","v":"SAM","th":"TH-3"},{"id":89,"d":23,"t":"16:20","f":"DEEP QUIET ROOM","v":"PAR","th":"TH-14","qa":1},{"id":90,"d":23,"t":"17:40","f":"NAGI NOTES","v":"SF","th":"TH-3","rt":110},{"id":91,"d":23,"t":"18:00","f":"LA GRADIVA","v":"SAM","th":"TH-3"},{"id":92,"d":23,"t":"18:00","f":"สตรีเหล็ก","v":"C11","th":""},{"id":93,"d":23,"t":"19:10","f":"DUA","v":"PAR","th":"TH-14"},{"id":94,"d":23,"t":"20:00","f":"ROSEBUSH PRUNING","v":"SF","th":"TH-3"},{"id":95,"d":23,"t":"20:40","f":"ELEPHANTS IN THE FOG","v":"SAM","th":"TH-3"},{"id":96,"d":23,"t":"21:25","f":"THE BALLAD OF NARAYAMA","v":"PAR","th":"TH-14"},{"id":97,"d":24,"t":"13:30","f":"SILENCED NIGHT","v":"PAR","th":"TH-14"},{"id":98,"d":24,"t":"15:40","f":"IN THE FLOW PROGRAMME 5","v":"SAM","th":"TH-4","qa":1},{"id":99,"d":24,"t":"16:00","f":"พริกขี้หนูกับหมูแฮม","v":"SF","th":"TH-3"},{"id":100,"d":24,"t":"16:05","f":"BLACK RAIN","v":"PAR","th":"TH-14"},{"id":101,"d":24,"t":"17:00","f":"FRUIT GATHERING","v":"SAM","th":"TH-3"},{"id":102,"d":24,"t":"17:00","f":"WE ARE ALL STRANGERS","v":"SF","th":"TH-7","qa":1},{"id":103,"d":24,"t":"17:40","f":"ASIAN SHORT FILM COMPETITION 1","v":"SAM","th":"TH-4","qa":1},{"id":104,"d":24,"t":"18:00","f":"สตรีเหล็ก 2","v":"C11","th":""},{"id":105,"d":24,"t":"18:15","f":"TIN CASTLE","v":"SF","th":"TH-3"},{"id":106,"d":24,"t":"18:50","f":"ROSEBUSH PRUNING","v":"PAR","th":"TH-14"},{"id":107,"d":24,"t":"18:55","f":"WOLFRAM","v":"SAM","th":"TH-3"},{"id":108,"d":24,"t":"20:20","f":"I SEE BUILDINGS FALL LIKE LIGHTNING","v":"SF","th":"TH-3"},{"id":109,"d":24,"t":"20:50","f":"GENTLE MONSTER","v":"SAM","th":"TH-3"},{"id":110,"d":24,"t":"21:10","f":"CONGO BOY","v":"PAR","th":"TH-14","rt":91},{"id":111,"d":25,"t":"12:20","f":"ASIAN SHORT FILM COMPETITION 2","v":"SAM","th":"TH-3","qa":1},{"id":112,"d":25,"t":"13:30","f":"SPIRIT GUARDIAN - THE LAST SECRET OF THE FIRST EMPEROR","v":"PAR","th":"TH-14"},{"id":113,"d":25,"t":"13:30","f":"TELL ME EVERYTHING","v":"PAR","th":"TH-6"},{"id":114,"d":25,"t":"13:45","f":"แม่เบี้ย","v":"C11","th":""},{"id":115,"d":25,"t":"14:40","f":"ASIAN SHORT FILM COMPETITION 3","v":"SAM","th":"TH-3","qa":1},{"id":116,"d":25,"t":"16:00","f":"PRIMITIVE DIVERSITY","v":"PAR","th":"TH-6"},{"id":117,"d":25,"t":"16:00","f":"THE WOLF","v":"SF","th":"TH-3","qa":1},{"id":118,"d":25,"t":"16:25","f":"HUNTER'S MOON","v":"PAR","th":"TH-14","qa":1},{"id":119,"d":25,"t":"17:00","f":"FUJIKO","v":"SAM","th":"TH-3","qa":1},{"id":120,"d":25,"t":"18:00","f":"ELEPHANTS IN THE FOG","v":"PAR","th":"TH-6"},{"id":121,"d":25,"t":"18:10","f":"ATLANTIC RHAPSODY","v":"SF","th":"TH-3","qa":1},{"id":122,"d":25,"t":"19:05","f":"THE DAY SHE RETURNS","v":"PAR","th":"TH-14"},{"id":123,"d":25,"t":"19:15","f":"ALL THE LOVERS IN THE NIGHT","v":"SAM","th":"TH-3","qa":1},{"id":124,"d":25,"t":"20:30","f":"THE EEL","v":"PAR","th":"TH-6"},{"id":125,"d":25,"t":"20:35","f":"ZSAZSA ZATURNNAH","v":"SF","th":"TH-3","qa":1},{"id":126,"d":25,"t":"20:40","f":"DUA","v":"SAM","th":"TH-4"},{"id":127,"d":25,"t":"21:10","f":"THE STATION","v":"PAR","th":"TH-14","qa":1},{"id":128,"d":25,"t":"22:00","f":"THE BLACK BALL","v":"SAM","th":"TH-3"},{"id":129,"d":26,"t":"11:40","f":"AQUI","v":"SAM","th":"TH-4"},{"id":130,"d":26,"t":"12:00","f":"FJORD","v":"SAM","th":"TH-3"},{"id":131,"d":26,"t":"13:00","f":"THE DREAMED ADVENTURE","v":"PAR","th":"TH-14"},{"id":132,"d":26,"t":"13:00","f":"MONISME","v":"PAR","th":"TH-6"},{"id":133,"d":26,"t":"13:00","f":"QUEEN AT SEA","v":"SF","th":"TH-3"},{"id":134,"d":26,"t":"14:40","f":"SILENCED NIGHT","v":"SAM","th":"TH-3","qa":1},{"id":135,"d":26,"t":"15:00","f":"กึ๋ยทู","v":"C11","th":""},{"id":136,"d":26,"t":"15:20","f":"ASIAN SHORT FILM SHOWCASE 2","v":"SAM","th":"TH-4"},{"id":137,"d":26,"t":"15:20","f":"FJORD","v":"SF","th":"TH-3"},{"id":138,"d":26,"t":"15:40","f":"A WOMAN'S LIFE","v":"PAR","th":"TH-6"},{"id":139,"d":26,"t":"16:30","f":"MOONGLOW","v":"PAR","th":"TH-14","qa":1},{"id":140,"d":26,"t":"17:00","f":"2499 อันธพาลครองเมือง","v":"C11","th":""},{"id":141,"d":26,"t":"17:20","f":"A GIRL UNKNOWN","v":"SAM","th":"TH-3","qa":1},{"id":142,"d":26,"t":"18:00","f":"PARALLEL TALES","v":"PAR","th":"TH-6"},{"id":143,"d":26,"t":"18:05","f":"ROSE","v":"SF","th":"TH-3"},{"id":144,"d":26,"t":"19:20","f":"FRUIT GATHERING","v":"PAR","th":"TH-14","qa":1},{"id":145,"d":26,"t":"20:00","f":"FILIPIÑANA","v":"SF","th":"TH-3","qa":1},{"id":146,"d":26,"t":"20:10","f":"SPIRIT GUARDIAN - THE LAST SECRET OF THE FIRST EMPEROR","v":"SAM","th":"TH-3","qa":1},{"id":147,"d":26,"t":"21:00","f":"MINOTAUR","v":"PAR","th":"TH-6"},{"id":148,"d":26,"t":"22:00","f":"SOUMSOUM, THE NIGHT OF THE STARS","v":"PAR","th":"TH-14"},{"id":149,"d":27,"t":"12:20","f":"SISA","v":"SAM","th":"TH-3","qa":1},{"id":150,"d":27,"t":"13:00","f":"CYCLONE","v":"PAR","th":"TH-14","qa":1},{"id":151,"d":27,"t":"13:00","f":"WE ARE ALL STRANGERS","v":"PAR","th":"TH-6"},{"id":152,"d":27,"t":"13:00","f":"MOTHER BHUMI","v":"SF","th":"TH-7","qa":1,"rt":129},{"id":153,"d":27,"t":"13:20","f":"AH GIRL","v":"SF","th":"TH-3","qa":1,"rt":99},{"id":154,"d":27,"t":"15:00","f":"THE MAN I LOVE","v":"SAM","th":"TH-3","rt":95},{"id":155,"d":27,"t":"15:15","f":"คู่แท้ 2 โลก","v":"SAM","th":"TH-4"},{"id":156,"d":27,"t":"15:45","f":"COWARD","v":"SF","th":"TH-3"},{"id":157,"d":27,"t":"16:00","f":"BEN'IMANA","v":"PAR","th":"TH-14"},{"id":158,"d":27,"t":"16:20","f":"SILENCED NIGHT","v":"PAR","th":"TH-6"},{"id":159,"d":27,"t":"16:50","f":"FILIPIÑANA","v":"SAM","th":"TH-3"},{"id":160,"d":27,"t":"18:10","f":"THE MAN I LOVE","v":"SF","th":"TH-3","rt":95},{"id":161,"d":27,"t":"18:30","f":"I UNDERSTAND YOUR DISPLEASURE","v":"PAR","th":"TH-14"},{"id":162,"d":27,"t":"18:45","f":"THE HOUSE ON THE MOON","v":"SAM","th":"TH-3"},{"id":163,"d":27,"t":"18:55","f":"TELL ME EVERYTHING","v":"PAR","th":"TH-6"},{"id":164,"d":27,"t":"20:10","f":"THE BLACK BALL","v":"SF","th":"TH-3"},{"id":165,"d":27,"t":"20:30","f":"THE HOUSE ON THE MOON","v":"ICON","th":"IMAX","qa":1,"sp":"Closing"},{"id":166,"d":27,"t":"21:00","f":"THE BIRTHDAY PARTY","v":"PAR","th":"TH-14"},{"id":167,"d":27,"t":"21:15","f":"VENGEANCE IS MINE","v":"PAR","th":"TH-6"}],"seed":["ROSE|17|21:05|SAM","I UNDERSTAND YOUR DISPLEASURE|19|13:00|SF","LA GRADIVA|19|15:00|SF","FATHERLAND|20|13:30|SAM","MINOTAUR|20|18:00|SF","ALL OF A SUDDEN|20|18:25|PAR","FJORD|26|12:00|SAM","COWARD|27|15:45|SF","THE MAN I LOVE|27|18:10|SF"]};
+const STANDALONE = !(window.claude && window.claude.use);
+const SHOW_POSTERS = STANDALONE;
+const VEN = Object.fromEntries(DATA.venues.map(v => [v.id, v]));
+const VORDER = DATA.venues.map(v => v.id);
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const dow = d => DOW[new Date(2026, 8, d).getDay()];
+const tmin = t => { const [h,m] = t.split(":").map(Number); return h*60+m; };
+const fmt = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m/60)).padStart(2,"0") + ":" + String(m%60).padStart(2,"0"); };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const COLL = {new:"New films", imamura:"Shōhei Imamura", classic:"Thai & classics", shorts:"Shorts programmes"};
+
+const SCR = DATA.screenings.map(s => {
+  const f = DATA.films[s.f]; const rt = s.rt || f.rt;
+  return {...s, key: `${s.f}|${s.d}|${s.t}|${s.v}`, film: f, rt, start: tmin(s.t), end: tmin(s.t) + rt};
+});
+const BYKEY = Object.fromEntries(SCR.map(s => [s.key, s]));
+const BYFILM = {};
+SCR.forEach(s => (BYFILM[s.f] ||= []).push(s));
+const DAYS = [...new Set(SCR.map(s => s.d))].sort((a,b) => a-b);
+
+/* ---------- state (kept in this browser) ---------- */
+const STORE = "bkkiff26-plan-v1";
+let state = {plan: [], seeded: false, settings: {qa: 30, same: 10, diff: 45}};
+try {
+  const raw = localStorage.getItem(STORE);
+  if (raw) { const s = JSON.parse(raw); state = {...state, ...s, settings: {...state.settings, ...(s.settings||{})}}; state.plan = (state.plan||[]).filter(k => BYKEY[k]); }
+  else state = {...state, plan: DATA.seed.filter(k => BYKEY[k]), seeded: true};
+} catch (e) { state = {...state, plan: DATA.seed.slice(), seeded: true}; }
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
+let ui = {view: "day", day: 17, venues: new Set(VORDER), q: "", coll: "all"};
+if (state.plan.length) { const first = state.plan.map(k => BYKEY[k]).sort((a,b) => a.d-b.d || a.start-b.start)[0]; if (first) ui.day = first.d; }
+
+const inPlan = k => state.plan.includes(k);
+function toggle(k) {
+  state.plan = inPlan(k) ? state.plan.filter(x => x !== k) : [...state.plan, k];
+  state.seeded = false; save(); renderAll();
+  const s = BYKEY[k]; toast(inPlan(k) ? `Added ${s.film.en || s.f} · ${dow(s.d)} ${s.d} ${s.t}` : `Removed ${s.film.en || s.f}`);
+}
+
+/* ---------- clash logic ---------- */
+function gapNeeded(a, b) { return (a.qa ? state.settings.qa : 0) + (a.v === b.v ? state.settings.same : state.settings.diff); }
+function relation(a, b) { // a starts first
+  if (a.d !== b.d) return null;
+  if (b.start < a.end) return "overlap";
+  if (b.start < a.end + gapNeeded(a, b)) return "tight";
+  return null;
+}
+function conflictsFor(s, list) {
+  const out = [];
+  for (const o of list) {
+    if (o.key === s.key || o.d !== s.d) continue;
+    const [a, b] = o.start <= s.start ? [o, s] : [s, o];
+    const r = relation(a, b); if (r) out.push({other: o, kind: r});
+  }
+  return out;
+}
+const planScr = () => state.plan.map(k => BYKEY[k]).filter(Boolean).sort((a,b) => a.d-b.d || a.start-b.start);
+
+/* ---------- title cards ---------- */
+const PAL = [["#62DDF0","#C9F4FA","#EAFBFD"],["#F4A6BD","#FFD9E4","#FFF1F5"],["#AEB0EA","#DCDDFB","#F1F1FE"],["#F6B596","#FFDCCB","#FFF3EC"],["#D9C27A","#F1E3B4","#FAF4E1"],["#9FE0C0","#D2F4E3","#EFFBF5"]];
+function hash(s) { let h = 2166136261; for (const c of s) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function posterStyle(f) {
+  if (f.kind === "imamura") return {cls: "dark", css: "--p1:#8E1B22;--p2:#3A1418;--p3:#141217"};
+  if (f.kind === "shorts") return {cls: "", css: "--p1:#FFFFFF;--p2:#62DDF0;--p3:#C9F4FA"};
+  if (f.kind === "classic") { const g = [["#E8B84A","#F6DEA0","#FBF0D2"],["#E98A5B","#F7C8A6","#FDEBDD"]][hash(f.t)%2]; return {cls:"", css:`--p1:${g[0]};--p2:${g[1]};--p3:${g[2]}`}; }
+  const p = PAL[hash(f.t) % PAL.length]; return {cls: "", css: `--p1:${p[0]};--p2:${p[1]};--p3:${p[2]}`};
+}
+function yearOf(f) { const m = String(f.by || "").match(/(19|20)\d\d/); return m ? m[0] : ""; }
+function director(f) { return String(f.by || "").replace(/,?\s*(c\.\s*)?(19|20)\d\d.*$/, "").trim(); }
+function poster(f, mini) {
+  const st = posterStyle(f); const title = f.t;
+  const len = [...title].length; const fs = len > 40 ? 20 : len > 26 ? 24 : len > 14 ? 29 : 36;
+  const initial = [...(f.en || f.t).replace(/^(THE|A) /i, "")][0];
+  return `<div class="poster ${mini ? "mini" : ""} ${st.cls}" style="${st.css};--fs:${fs}px" aria-hidden="true">
+    <div class="pk"><span>BKKIFF 2026</span><span>${esc(yearOf(f))}</span></div>
+    <div class="pt">${esc(title)}</div>
+    <div class="pb">${esc(director(f) || COLL[f.kind] || "")}</div>
+    <div class="pi">${esc(initial)}</div>${SHOW_POSTERS && f.po ? `<img class="real" src="https://m.media-amazon.com/images/M/${f.po}._V1_QL80_UX${mini ? 120 : 400}_.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}</div>`;
+}
+
+/* ---------- renders ---------- */
+const $ = id => document.getElementById(id);
+const matchQ = f => { if (!ui.q) return true; const q = ui.q.toLowerCase(); return [f.t, f.en, f.by, f.c, f.g, f.d].join(" ").toLowerCase().includes(q); };
+
+function renderDays() {
+  const plan = planScr();
+  $("days").innerHTML = DAYS.map(d => {
+    const n = SCR.filter(s => s.d === d && ui.venues.has(s.v) && matchQ(s.film)).length;
+    const mine = plan.filter(s => s.d === d).length;
+    return `<button class="day" data-day="${d}" aria-pressed="${ui.view==="day" && ui.day===d}"><div class="dow">${dow(d)}</div><div class="num tnum">${d}</div><div class="cnt">${n} show${n===1?"":"s"}</div><div class="dots">${"<i></i>".repeat(Math.min(mine,6))}</div></button>`;
+  }).join("");
+}
+function renderChips() {
+  $("venueChips").innerHTML = DATA.venues.map(v => `<button class="chip" data-ven="${v.id}" aria-pressed="${ui.venues.has(v.id)}" style="--c:var(--v-${v.id})"><span class="sw"></span>${esc(v.cinema)} <span style="color:var(--muted)">· ${esc(v.mall)}</span></button>`).join("");
+}
+function slotHTML(s, plan) {
+  const f = s.film, on = inPlan(s.key);
+  const cf = on ? conflictsFor(s, plan) : conflictsFor(s, plan);
+  let warn = "";
+  if (cf.length) {
+    const c = cf[0]; const nm = esc(c.other.film.en || c.other.f);
+    warn = on ? `<div class="warnline ${c.kind==="overlap"?"bad":""}">${c.kind==="overlap"?"Overlaps":"Tight after/before"} ${nm}</div>`
+              : `<div class="warnline ${c.kind==="overlap"?"bad":""}">${c.kind==="overlap"?"Clashes with":"Tight with"} ${nm} in your plan</div>`;
+  }
+  return `<div class="slot ${on?"on":""}" style="--c:var(--v-${s.v})">
+    <div class="time"><b>${s.t}</b><small>→ ${fmt(s.end)}</small></div>
+    ${poster(f, true)}
+    <div><button class="ttl" data-film="${esc(s.f)}">${esc(s.f)}</button>${f.en && f.en.toUpperCase() !== s.f ? `<div class="en">${esc(f.en)}</div>` : ""}
+      <div class="meta"><span>${s.rt} min</span><span>${esc(s.th || "")}</span>${s.qa?'<span class="tag qa">Q&amp;A</span>':""}${s.sp?`<span class="tag sp">${esc(s.sp)}</span>`:""}${f.kind!=="new"?`<span class="tag col">${esc(COLL[f.kind])}</span>`:""}</div>${warn}</div>
+    <button class="add" data-key="${esc(s.key)}" aria-pressed="${on}" aria-label="${on?"Remove from":"Add to"} plan: ${esc(s.f)} ${s.t}">${on?'<svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5"/></svg>':'<svg viewBox="0 0 16 16"><path d="M8 2.5v11M2.5 8h11"/></svg>'}</button>
+  </div>`;
+}
+function renderDay() {
+  const plan = planScr();
+  const list = SCR.filter(s => s.d === ui.day && ui.venues.has(s.v) && matchQ(s.film));
+  const mine = plan.filter(s => s.d === ui.day).length;
+  const vcount = VORDER.filter(v => list.some(s => s.v === v)).length;
+  let html = `<div class="dayhead"><h2>${dow(ui.day)} ${ui.day} September</h2><div class="meta">${list.length} screening${list.length===1?"":"s"}${mine?` · ${mine} in your plan`:""}</div></div>`;
+  if (!list.length) return html + `<p class="empty">No screenings match on this day. Try another day or turn more cinemas on.</p>`;
+  html += `<div class="venues">` + VORDER.filter(v => list.some(s => s.v === v)).map(v => {
+    const vs = list.filter(s => s.v === v);
+    return `<section class="venue" style="--c:var(--v-${v})"><div class="vh"><b>${esc(VEN[v].cinema)}</b><span>${esc(VEN[v].mall)}</span></div>
+      ${vs.map(s => slotHTML(s, plan)).join("")}<div class="ghost" aria-hidden="true">${ui.day} SEP</div></section>`;
+  }).join("") + `</div>`;
+  return html;
+}
+function renderFilms() {
+  const films = Object.values(DATA.films).filter(f => (ui.coll === "all" || f.kind === ui.coll) && matchQ(f) && BYFILM[f.t].some(s => ui.venues.has(s.v)));
+  films.sort((a,b) => (a.kind==="shorts") - (b.kind==="shorts") || (a.en||a.t).localeCompare(b.en||b.t));
+  const counts = k => Object.values(DATA.films).filter(f => k==="all" || f.kind===k).length;
+  let html = `<div class="filters" role="group" aria-label="Collections">` +
+    ["all","new","imamura","classic","shorts"].map(k => `<button class="chip" data-coll="${k}" aria-pressed="${ui.coll===k}" style="--c:var(--ink)"><span class="sw"></span>${k==="all"?"Everything":COLL[k]} <span style="color:var(--muted)">${counts(k)}</span></button>`).join("") + `</div>`;
+  if (!films.length) return html + `<p class="empty">No films match “${esc(ui.q)}”.</p>`;
+  html += `<div class="grid">` + films.map(f => `<article class="card">
+      <button class="pbtn" data-film="${esc(f.t)}" aria-label="Open ${esc(f.en || f.t)}">${poster(f)}</button>
+      <div><h3>${esc(f.en && /[฀-๿]/.test(f.t) ? f.en : f.t)}</h3><div class="by">${esc([f.by, f.c].filter(Boolean).join(" · "))}</div></div>
+      <p>${esc(f.d)}</p>
+      <div class="times">${BYFILM[f.t].filter(s => ui.venues.has(s.v)).map(s => `<button class="st" data-key="${esc(s.key)}" aria-pressed="${inPlan(s.key)}" style="--c:var(--v-${s.v})" title="${esc(VEN[s.v].cinema)} ${esc(s.th)}"><span class="sw"></span>${dow(s.d)} ${s.d} · ${s.t}${s.qa?' <span class="q">Q&amp;A</span>':""}</button>`).join("")}</div>
+    </article>`).join("") + `</div>`;
+  return html;
+}
+function renderPlan() {
+  const plan = planScr();
+  let clashes = 0;
+  const byDay = {};
+  plan.forEach(s => (byDay[s.d] ||= []).push(s));
+  const mins = plan.reduce((a,s) => a + s.rt, 0);
+  let html = state.seeded ? `<div class="seednote">Started from the ${plan.length} films you marked “Watch” in your BKKIFF sheet.</div>` : "";
+  if (!plan.length) html += `<p class="empty">Nothing here yet. Tap + on a screening to add it.</p>`;
+  for (const d of Object.keys(byDay).map(Number).sort((a,b)=>a-b)) {
+    html += `<div class="pday"><h4>${dow(d)} ${d} Sep</h4>` + byDay[d].map((s, i, arr) => {
+      const next = arr[i+1]; const r = next ? relation(s, next) : null; if (r) clashes++;
+      const clash = r ? `<div class="clash ${r==="tight"?"tight":""}">${r==="overlap" ? `Overlaps ${esc(next.film.en || next.f)} (${next.t})` : `Only ${next.start - s.end} min before ${esc(next.film.en || next.f)}${s.v!==next.v?" at another cinema":""}`}</div>` : "";
+      return `<div class="pitem" style="--c:var(--v-${s.v})"><span class="sw"></span><div><button class="tt" data-film="${esc(s.f)}">${esc(s.f)}</button><small>${s.t}–${fmt(s.end)} · ${esc(VEN[s.v].cinema)} ${esc(s.th)}${s.qa?" · Q&amp;A":""}</small></div><button class="rm" data-key="${esc(s.key)}" aria-label="Remove ${esc(s.f)}">×</button>${clash}</div>`;
+    }).join("") + `</div>`;
+  }
+  $("planBody").innerHTML = html;
+  $("planSum").textContent = plan.length ? `${plan.length} screening${plan.length===1?"":"s"} · ${Math.floor(mins/60)} h ${mins%60} min of film · ${clashes ? clashes + " clash" + (clashes>1?"es":"") : "no clashes"}` : "No screenings yet";
+  $("planCount").textContent = plan.length;
+  $("planWarn").textContent = clashes ? `${clashes} ⚠` : "";
+  $("setQa").value = state.settings.qa; $("setSame").value = state.settings.same; $("setDiff").value = state.settings.diff;
+}
+function renderMain() {
+  $("tab-day").setAttribute("aria-pressed", ui.view === "day");
+  $("tab-films").setAttribute("aria-pressed", ui.view === "films");
+  $("main").innerHTML = ui.view === "day" ? renderDay() : renderFilms();
+}
+function renderAll() { renderDays(); renderChips(); renderMain(); renderPlan(); if ($("film").open) openFilm(current, true); }
+
+/* ---------- film dialog ---------- */
+let current = null;
+function openFilm(t, keep) {
+  const f = DATA.films[t]; if (!f) return; current = t;
+  const plan = planScr();
+  const lb = f.lb ? `<a href="${esc(f.lb)}" target="_blank" rel="noopener">Letterboxd ↗</a>` : `<a href="${esc(f.lbs)}" target="_blank" rel="noopener">Search Letterboxd ↗</a>`;
+  const im = f.imdb ? `<a href="${esc(f.imdb)}" target="_blank" rel="noopener">IMDb ↗</a>` : "";
+  $("filmBody").innerHTML = `<div class="dlg"><button class="x" id="closeFilm" aria-label="Close">×</button>
+    <div class="pwrap">${poster(f)}</div>
+    <div><div class="eyebrow">${esc(COLL[f.kind])}</div><h2>${esc(f.t)}</h2>${f.en ? `<div class="alt">${esc(f.en)}</div>` : ""}
+      <div class="facts">${director(f)?`<span>Director <b>${esc(director(f))}</b></span>`:""}${yearOf(f)?`<span>Year <b>${yearOf(f)}</b></span>`:""}${f.c?`<span>Country <b>${esc(f.c)}</b></span>`:""}${f.g?`<span>Genre <b>${esc(f.g)}</b></span>`:""}<span>Runtime <b>${f.rt} min</b></span></div>
+      <p class="desc">${esc(f.d)}</p>${f.note ? `<div class="note">${esc(f.note)}</div>` : ""}
+      <div class="links">${lb}${im}</div>
+      <div class="shows">${BYFILM[t].map(s => { const on = inPlan(s.key); const cf = conflictsFor(s, plan);
+        return `<div class="show ${on?"on":""}" style="--c:var(--v-${s.v})"><span class="sw"></span><div><b>${dow(s.d)} ${s.d} Sep · ${s.t}–${fmt(s.end)}</b>${s.qa?' <span class="tag qa">Q&amp;A</span>':""}<small>${esc(VEN[s.v].cinema)}, ${esc(VEN[s.v].mall)} · ${esc(s.th)}${cf.length?` · <span style="color:var(--qa)">${cf[0].kind==="overlap"?"clashes with":"tight with"} ${esc(cf[0].other.film.en || cf[0].other.f)}</span>`:""}</small></div>
+        <button class="add" data-key="${esc(s.key)}" aria-pressed="${on}" aria-label="${on?"Remove from":"Add to"} plan">${on?'<svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5"/></svg>':'<svg viewBox="0 0 16 16"><path d="M8 2.5v11M2.5 8h11"/></svg>'}</button></div>`; }).join("")}</div>
+    </div></div>`;
+  if (!keep) $("film").showModal();
+}
+
+/* ---------- plan sheet ---------- */
+function setPlanOpen(o) {
+  $("plan").classList.toggle("open", o); $("plan").setAttribute("aria-hidden", !o); $("scrim").hidden = !o;
+  if (o) $("closePlan").focus();
+}
+
+/* ---------- export ---------- */
+function planRows() {
+  const plan = planScr();
+  return plan.map((s, i) => { const nx = plan[i+1]; const r = nx ? relation(s, nx) : null; return {s, clash: r ? (r==="overlap" ? `Overlaps ${nx.f}` : `Tight before ${nx.f}`) : ""}; });
+}
+function csv() {
+  const q = v => `"${String(v ?? "").replace(/"/g,'""')}"`;
+  const head = ["Date","Day","Start","End","Title","English title","Cinema","Venue","Theater","Q&A","Runtime (min)","Director · Year","Letterboxd","IMDb","Clash note"];
+  const lines = planRows().map(({s, clash}) => [`2026-09-${String(s.d).padStart(2,"0")}`, dow(s.d), s.t, fmt(s.end), s.f, s.film.en, VEN[s.v].cinema, VEN[s.v].mall, s.th, s.qa?"Q&A":"", s.rt, s.film.by, s.film.lb || "", s.film.imdb || "", clash].map(q).join(","));
+  return "\uFEFF" + [head.map(q).join(","), ...lines].join("\r\n");
+}
+function planText() {
+  let out = "My BKKIFF 2026 plan\n"; let d0 = null;
+  planRows().forEach(({s, clash}) => { if (s.d !== d0) { out += `\n${dow(s.d)} ${s.d} Sep\n`; d0 = s.d; }
+    out += `  ${s.t}–${fmt(s.end)}  ${s.f}${s.film.en && s.film.en.toUpperCase()!==s.f ? " ("+s.film.en+")" : ""} · ${VEN[s.v].cinema} ${s.th}${s.qa?" · Q&A":""}${clash?"  ⚠ "+clash:""}\n`; });
+  return out;
+}
+function printable() {
+  const vc = {ICON:"#D9C27A",SAM:"#F6B596",PAR:"#F4A6BD",SF:"#62DDF0",C11:"#AEB0EA"};
+  let d0 = null, body = "";
+  planRows().forEach(({s, clash}) => {
+    if (s.d !== d0) { body += `${d0 ? "</section>" : ""}<section><h2>${dow(s.d)} ${s.d} September</h2>`; d0 = s.d; }
+    body += `<div class="it" style="border-color:${vc[s.v]}"><div class="tm">${s.t}<small>${fmt(s.end)}</small></div><div><b>${esc(s.f)}</b>${s.film.en && s.film.en.toUpperCase()!==s.f?`<i>${esc(s.film.en)}</i>`:""}<span>${esc(VEN[s.v].cinema)}, ${esc(VEN[s.v].mall)} · ${esc(s.th)} · ${s.rt} min${s.qa?" · Q&amp;A":""}</span>${clash?`<em>⚠ ${esc(clash)}</em>`:""}</div></div>`;
+  });
+  if (d0) body += "</section>";
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My BKKIFF 2026 plan</title>
+<style>body{font:15px/1.45 system-ui,sans-serif;color:#17151C;background:#fff;max-width:720px;margin:32px auto;padding:0 20px}h1{font-size:30px;margin:0;text-transform:uppercase;letter-spacing:-.01em}p.s{color:#5F5A69;margin:4px 0 20px}h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#5F5A69;margin:22px 0 8px}.it{display:grid;grid-template-columns:64px 1fr;gap:12px;border-left:6px solid;padding:8px 12px;margin:6px 0;background:#F7F6F9;border-radius:0 8px 8px 0;break-inside:avoid}.tm{font-weight:700;font-variant-numeric:tabular-nums}.tm small{display:block;font-weight:400;color:#5F5A69}b{display:block;text-transform:uppercase}i{display:block;color:#5F5A69;font-style:normal;font-size:13px}span{display:block;font-size:13px;color:#5F5A69}em{display:block;color:#C8102E;font-style:normal;font-size:13px;font-weight:600}</style></head>
+<body><h1>My BKKIFF 2026 plan</h1><p class="s">Bangkok International Film Festival · 13–27 September 2026 · ${planScr().length} screenings</p>${body}</body></html>`;
+}
+let downloads = null;
+(async () => {
+  if (STANDALONE) { $("saveRow").hidden = false; return; }
+  try { downloads = await window.claude.use("downloads"); } catch (e) { downloads = null; } $("saveRow").hidden = !downloads; })();
+async function saveFile(filename, data) {
+  if (!state.plan.length) return toast("Add some screenings first.");
+  if (STANDALONE) { const type = filename.endsWith(".csv") ? "text/csv" : "text/html"; const url = URL.createObjectURL(new Blob([data], {type})); const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); return toast(`Saved ${filename}`); }
+  if (!downloads) return;
+  try { const r = await downloads.save({filename, data}); if (r && r.status === "saved") toast(`Saved ${filename}`); }
+  catch (e) { const c = e && e.code; if (c === "declined") return; if (c === "rate_limited") return toast("A save prompt is already open."); toast("Saving isn't available here – use Copy plan as text."); $("saveRow").hidden = true; }
+}
+
+/* ---------- toast ---------- */
+let tt;
+function toast(msg) { let el = document.querySelector(".toast"); if (!el) { el = document.createElement("div"); el.className = "toast"; el.setAttribute("role","status"); document.body.appendChild(el); } el.textContent = msg; el.hidden = false; clearTimeout(tt); tt = setTimeout(() => el.hidden = true, 2200); }
+
+/* ---------- events ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.key) return toggle(t.dataset.key);
+  if (t.dataset.film) { if (t.closest(".sheet")) setPlanOpen(false); return openFilm(t.dataset.film); }
+  if (t.dataset.day) { ui.view = "day"; ui.day = +t.dataset.day; renderDays(); renderMain(); return; }
+  if (t.dataset.ven) { const v = t.dataset.ven; if (ui.venues.has(v) && ui.venues.size === 1) ui.venues = new Set(VORDER); else if (ui.venues.size === VORDER.length) ui.venues = new Set([v]); else ui.venues.has(v) ? ui.venues.delete(v) : ui.venues.add(v); renderDays(); renderChips(); renderMain(); return; }
+  if (t.dataset.coll) { ui.coll = t.dataset.coll; renderMain(); return; }
+  if (t.id === "tab-day") { ui.view = "day"; renderDays(); renderMain(); }
+  if (t.id === "tab-films") { ui.view = "films"; renderDays(); renderMain(); }
+  if (t.id === "openPlan") setPlanOpen(true);
+  if (t.id === "closePlan") setPlanOpen(false);
+  if (t.id === "closeFilm") $("film").close();
+  if (t.id === "clearPlan") { if (!state.plan.length) return; const prev = state.plan.slice(); state.plan = []; state.seeded = false; save(); renderAll(); toast(`Cleared ${prev.length} screenings`); }
+  if (t.id === "copyTxt") { if (!state.plan.length) return toast("Add some screenings first."); const txt = planText();
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Plan copied – paste it anywhere"), () => { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); toast("Plan copied – paste it anywhere"); } catch (err) { toast("Couldn't copy here."); } ta.remove(); }); }
+  if (t.id === "saveCsv") saveFile("bkkiff-2026-plan.csv", csv());
+  if (t.id === "saveHtml") saveFile("bkkiff-2026-plan.html", printable());
+});
+$("scrim").addEventListener("click", () => setPlanOpen(false));
+$("film").addEventListener("click", e => { if (e.target === $("film")) $("film").close(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("plan").classList.contains("open")) setPlanOpen(false); });
+$("q").addEventListener("input", e => { ui.q = e.target.value.trim(); renderDays(); renderMain(); });
+["setQa","setSame","setDiff"].forEach((id, i) => $(id).addEventListener("change", e => { const k = ["qa","same","diff"][i]; const v = Math.max(0, Math.min(180, parseInt(e.target.value || "0", 10))); state.settings[k] = v; save(); renderAll(); }));
+
+/* ---------- countdown ---------- */
+(function () {
+  const now = new Date(); const bkk = new Date(now.getTime() + (now.getTimezoneOffset() + 420) * 60000);
+  const today = Date.UTC(bkk.getFullYear(), bkk.getMonth(), bkk.getDate());
+  const start = Date.UTC(2026, 8, 13), end = Date.UTC(2026, 8, 27);
+  const dd = Math.round((start - today) / 864e5);
+  $("countdown").textContent = today < start ? (dd === 1 ? "Starts tomorrow" : `Starts in ${dd} days`) : today <= end ? `Day ${Math.round((today - start)/864e5) + 1} of 15` : "Festival ended";
+  const td = bkk.getDate(); if (today >= start && today <= end && !state.plan.length) ui.day = td;
+})();
+
+if (STANDALONE) $("posterNote").textContent = "Poster images load directly from IMDb.";
+renderAll();
+</script>
+
+</body>
+</html>
