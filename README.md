@@ -11,6 +11,7 @@ A single-file planner for the Bangkok International Film Festival, 13–27 Septe
 - Tap **+** on any screening to add it to your plan.
 - The plan flags overlapping screenings and transfers that are too tight, using adjustable gaps for Q&A time, same-cinema changeovers and trips to another cinema.
 - Export the plan as a spreadsheet (.csv) or a printable page, or copy it as text.
+- The **Awards** tab lists the 2026 jury results in full, and award-winning films carry a badge wherever they appear in the programme.
 
 Your plan is stored in your own browser only — nothing is sent anywhere.
 
