@@ -242,15 +242,25 @@ dialog::backdrop{background:rgba(12,10,18,.55);backdrop-filter:blur(3px)}
 .awsec h3{margin:0 0 2px;font-family:var(--display);font-size:clamp(19px,2.4vw,24px);font-weight:800;font-stretch:80%;text-transform:uppercase;letter-spacing:-.01em}
 .awsec .jury{font-size:12.5px;color:var(--faint);margin:0 0 10px}
 .awsec .snote{font-size:13px;color:var(--muted);margin:0 0 10px;max-width:62ch}
-.awrow{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start;padding:11px 0;border-top:1px solid var(--line)}
-.awrow:first-of-type{border-top:0}
-.awrow .cat{font-family:var(--display);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--award)}
+.awitems{display:grid;grid-template-columns:repeat(auto-fill,minmax(166px,1fr));gap:20px 14px}
+.awrow{display:flex;flex-direction:column;gap:6px;min-width:0}
+.awrow .pwrap{border-radius:6px;box-shadow:var(--shadow)}
+.awrow .cat{font-family:var(--display);font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--award);line-height:1.3}
 .awrow .cat.men{color:var(--faint)}
-.awrow .ft{border:0;background:none;padding:0;text-align:left;font-family:var(--display);font-weight:800;font-stretch:84%;text-transform:uppercase;font-size:17px;line-height:1.1;color:var(--ink);text-wrap:balance}
+.awrow .ft{border:0;background:none;padding:0;text-align:left;font-family:var(--display);font-weight:800;font-stretch:84%;text-transform:uppercase;font-size:14px;line-height:1.12;color:var(--ink);text-wrap:balance}
 .awrow button.ft:hover{text-decoration:underline;text-underline-offset:3px}
-.awrow .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
-.awrow .who{font-family:var(--display);font-weight:800;font-stretch:84%;font-size:15px;text-transform:uppercase;color:var(--award)}
-@media (max-width:640px){.awrow{grid-template-columns:1fr}.awrow .pwrap{display:none}}
+.awrow .sub{font-size:12px;color:var(--muted)}
+.awrow .who{font-family:var(--display);font-weight:800;font-stretch:84%;font-size:14px;text-transform:uppercase;color:var(--award);line-height:1.12}
+@media (max-width:760px){.awitems{grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:18px 12px}}
+
+/* best film, first column of the intro strip */
+.bestpic{display:flex;gap:13px;align-items:flex-start}
+.bestpic .pwrap{flex:0 0 64px}
+.bestpic .pwrap .poster{border-radius:5px;box-shadow:var(--shadow)}
+.bestpic .cat{font-family:var(--display);font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--award)}
+.bestpic .ft{display:block;border:0;background:none;padding:0;margin-top:3px;text-align:left;font-family:var(--display);font-weight:800;font-stretch:82%;text-transform:uppercase;font-size:16px;line-height:1.08;color:var(--ink);text-wrap:balance}
+.bestpic .ft:hover{text-decoration:underline;text-underline-offset:3px}
+.bestpic .sub{font-size:12.5px;color:var(--muted);margin-top:4px}
 
 @media (max-width:760px){
   /* day view: cinemas stack, one full-width column after another */
@@ -288,6 +298,7 @@ dialog::backdrop{background:rgba(12,10,18,.55);backdrop-filter:blur(3px)}
 </header>
 
 <section class="wrap about" aria-label="About the festival">
+  <div class="bestpic" id="bestPic"></div>
   <div><h3>The festival</h3><p>BKKIFF returns 13–27 September 2026 with 150+ films, a film market, workshops and talks. Actors Ananda Everingham and Aim Bhumibhat Thavornsiri are this year's ambassadors.</p></div>
   <div><h3>Two retrospectives</h3><p>Seven films by Palme d'Or winner Shōhei Imamura at Paragon, and Thai classics at Doc Club & Friends and House Samyan – part of a tribute to producer Visute Poolvoralaks.</p></div>
   <div><h3>How to use this</h3><p>Pick a day, tap <b>+</b> on any screening, or browse <b>All films</b>. Your plan flags overlaps and tight transfers between cinemas, and exports as a spreadsheet or printable page.</p></div>
@@ -510,19 +521,20 @@ function awardSections() {
     html += `<section class="awsec"><h3>${esc(sec.name)}</h3>`;
     if (sec.note) html += `<p class="snote">${esc(sec.note)}</p>`;
     if (sec.jury) html += `<p class="jury">Jury: ${esc(sec.jury.join(" · "))}</p>`;
-    html += sec.items.map(it => {
+    html += `<div class="awitems">` + sec.items.map(it => {
       const f = DATA.films[it.f];
+      const card = f || {t: it.f, en: "", by: it.by || "", kind: "shorts", aw: [{n: it.a, w: it.w}]};
       const title = it.f + (f && f.en && f.en.toUpperCase() !== it.f ? ` (${f.en})` : "");
       const name = f ? `<button class="ft" data-film="${esc(it.f)}">${esc(title)}</button>`
                      : `<span class="ft">${esc(it.f)}</span>`;
       const sub = [it.by ? "Directed by " + it.by : "", it.c || "", it.short ? "Short film" : ""].filter(Boolean).join(" · ");
-      return `<div class="awrow">
-        <div class="pwrap">${f ? poster(f, true) : ""}</div>
-        <div><div class="cat ${it.w ? "" : "men"}">${esc(it.a)}</div>
-          ${it.who ? `<div class="who">${esc(it.who)}</div>` : ""}
-          ${name}${sub ? `<div class="sub">${esc(sub)}</div>` : ""}</div>
-      </div>`;
-    }).join("");
+      return `<article class="awrow">
+        <div class="pwrap">${poster(card)}</div>
+        <div class="cat ${it.w ? "" : "men"}">${esc(it.a)}</div>
+        ${it.who ? `<div class="who">${esc(it.who)}</div>` : ""}
+        ${name}${sub ? `<div class="sub">${esc(sub)}</div>` : ""}
+      </article>`;
+    }).join("") + `</div>`;
     html += `</section>`;
   }
   return html + `<p class="jury">Supported by the Department of Cultural Promotion, Ministry of Culture. Results as announced by BKKIFF; short films screened inside the Asian Short Film Competition programmes.</p>`;
@@ -538,6 +550,10 @@ function fillAwardFold() {
   const f = DATA.films[top.f];
   $("awFoldLine").innerHTML = `${esc((f && f.en) || top.f)} takes the Bangkok Grand Prix · ${n} awards in all`;
   $("awFoldBody").innerHTML = `<div class="awpage">${awardSections()}</div>`;
+  $("bestPic").innerHTML = `<div class="pwrap">${poster(f)}</div>
+    <div><div class="cat">${esc(top.a)}</div>
+      <button class="ft" data-film="${esc(top.f)}">${esc(top.f)}</button>
+      <div class="sub">${esc([top.by ? "Directed by " + top.by : "", top.c].filter(Boolean).join(" · "))}</div></div>`;
 }
 function renderPlan() {
   const plan = planScr();
